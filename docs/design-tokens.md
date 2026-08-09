@@ -100,3 +100,129 @@ in the README's documented-deviations section**, even though it's a minor one.
 - [ ] Check W value on 2–3 other screens to confirm whether this is a desktop-only
       file (all ~1280px wide) or whether tablet/mobile-width frames exist elsewhere
       that we haven't spotted yet
+
+### Priority Badges (text + icon share one color)
+| Priority | Color                          | Icon         |
+|----------|----------------------------------|--------------|
+| High     | #EF4444 (Tailwind red-500)      | SignalHigh   |
+| Medium   | #F97316 (Tailwind orange-500)   | SignalHigh (same icon as High — intentional, matches Figma; document as-is) |
+| Low      | #9CA3AF (Tailwind gray-400)     | SignalLow    |
+- height: 16px, width: fit-content (do not hardcode text widths)
+- font: font-sans, medium weight, text-xs
+
+### Label/Tag Chip ("Deployment" style)
+- background: var(--base-secondary, #F5F5F5)
+- text color: var(--base-secondary-foreground, #171717)
+- icon: Lucide "Tag", color var(--base-foreground, #0A0A0A)
+- padding: spacing/0-5 (vertical) spacing/2 (horizontal)
+- border-radius: rounded-3xl (effectively full pill at this height)
+- border: 1px solid transparent
+
+### Due Date Pill ("29 Jul" style)
+- background: var(--base-destructive, #DC2626) at ~10% opacity
+- text + icon color: var(--base-destructive, #DC2626)
+- icon: Lucide "Calendar"
+- padding/radius/border: same as label chip above
+
+### Task Card (Kanban)
+- padding: spacing/3
+- border-radius: rounded-md
+- background: var(--base-background, #FFFFFF)
+- border: 1px solid var(--base-border, #E5E5E5)
+- internal vertical gap between title / avatar-row / chip-row: 16px
+- title text: font-sans medium text-sm, color var(--base-accent-foreground, #171717)
+- avatar: 20×20, rounded-full, fallback bg var(--base-muted, #F5F5F5)
+
+### Table Header (List view)
+- text: font-sans medium text-sm, color var(--base-primary, #171717)
+- row height: 48px
+- row background: not yet confirmed, defaulting to var(--base-muted) until spot-checked
+
+
+## Task Detail Screen — component inventory (light pass, colors TODO)
+
+New component types spotted (not yet color-inspected):
+- Resources row (attach doc/link — icon + placeholder text button)
+- Subtasks data table (Task / Priority / Members / Due Date / Actions)
+- Comments/activity feed (avatar, name, relative timestamp, text, reply + emoji-react)
+- Details sidebar panel (collapsible; Status, Priority, Members, Dates, Labels, Teams, Reporter fields)
+- Priority levels — CONFIRMED 5, not 3: No Priority, Urgent, High, Medium, Low
+  (board cards only showed High/Medium/Low — Urgent + No Priority colors still TODO)
+- Date range picker (Start + End, calendar widget)
+- Status field: current task shows "Backlog" (orange/amber dot) — exists as a valid
+  status value; NOT currently mapped to a visible Kanban column. Open question,
+  low priority — revisit if Projects' board or a Tasks-board scroll clarifies it.
+
+### TODO (deferred to full pass / Phase 8)
+- [ ] Exact hex for Backlog status dot
+- [ ] Exact hex for Urgent + No Priority (only High/Medium/Low colors confirmed so far)
+- [ ] Subtask table row styling, spacing, borders
+- [ ] Comments feed spacing/avatar sizing
+- [ ] Date range picker component styling
+
+
+## Projects Screen — component inventory (light pass)
+
+- Layout: same List-view table pattern as Tasks (List view), different columns:
+  Projects / Priority / Lead / Due Date / Actions
+- Frame size: CONFIRMED 1280×900 — second frame at this size (alongside Login).
+  File treated as desktop-only; no further width checks needed.
+- New component: "Fields" toolbar button — column visibility toggle dropdown
+  (Status, Priority, Members, Due Date, Teams, Labels, Reporter)
+- Toolbar also has search (magnifier) and filter (funnel) icons — same row as Fields
+- "Lead" column = single-avatar assignee field, same avatar component as elsewhere
+- Minor inconsistency spotted: primary action button reads "+ Add Task" in one
+  screenshot, "+ Add Project" in another, same screen — likely template leftover,
+  worth a one-line README deviation note (low priority, but good "attention to
+  detail" signal)
+
+## Theme / Color Mode dropdown — CONFIRMED matches planned approach
+- Account avatar (sidebar top) → dropdown → "Change Theme" (Light/Dark) +
+  "Color Mode" (Amber/Blue/Pink/Rose/Emerald/Black) + Settings link
+- Settings page's own "Theme"/"Color" nav items are placeholders (no real frame) —
+  this dropdown is the actual control. Plan unchanged: reuse this control set
+  when building Settings in Phase 8, document as intentional deviation.
+- No hex extraction needed for the 6 accent colors — deriving via shadcn
+  convention per earlier decision.
+  
+## Settings / Profile Screen — component inventory (light pass)
+
+- Layer name confirmed as "Blocks / Sidebar-02" in this screenshot —
+  concrete example of the misleading-layer-name issue noted earlier
+  (shared app-shell component name, not per-screen)
+- Settings sidebar: Back to app, Search, Profile / Theme / Color nav items
+  — Theme and Color confirmed as placeholders with no distinct content pane,
+  consistent with plan to reuse account-dropdown Theme/Color controls instead
+- New components:
+  - Avatar upload row (image + label, click target presumably the avatar itself)
+  - Read-only field + inline pencil edit icon (Email row)
+  - Text input styled with placeholder-weight text as the value (Full name, Username)
+  - Label + helper subtext pattern under field label (Title, Username)
+  - Danger-zone section: muted heading + description, destructive-styled button
+    ("Leave Workspace" — red text, presumably red-tinted bg on hover)
+    
+## Project Detail Screen — component inventory (light pass)
+
+- Accessed via Projects > [project name] breadcrumb (confirmed: "Design Homepage")
+- Shares the same grouped/collapsible List-view pattern as the main Tasks screen
+  (sections: To Do / Doing / Completed — same table columns: Task, Priority,
+  Members, Due Date, Actions; same "Add Task" row per group)
+- Likely also has a Board (Kanban) view via the same view-toggle pattern seen on
+  the main Tasks screen — not directly confirmed, low priority to chase further
+- Visible task data (Design Homepage / Develop Login Feature / Test Payment
+  Gateway) is repeated identically across all three status groups — confirmed
+  placeholder/dummy content, not a real pattern to design around
+- No new component types beyond what's already captured for Tasks (List view)
+
+## Backlog status — RESOLVED (documented deviation, not pursued further)
+
+Confirmed as a real, selectable status value (visible in the Task Detail
+Status field and Priority-style dropdown pattern). However, it does not appear
+as a rendered column/group in either board layout checked (main Tasks Kanban:
+To Do / Doing / On Hold / Completed; Project Detail List view: To Do / Doing /
+Completed). Decision: **treat as an intentional source-file inconsistency,
+document in the README's deviations section** — e.g. "Backlog exists as a
+valid status in the source file's data model but is not visually represented
+as a board column anywhere in the Figma file; we've included it as a column
+in our implementation for data-model completeness" (or excluded — final call
+belongs in Phase 3 schema design, not now).
