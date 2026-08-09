@@ -1,0 +1,2 @@
+- setup nestjs scaffolding
+- install dependencies, setup env, gitignore, health route, remove hello world, alter the test for hello world 
