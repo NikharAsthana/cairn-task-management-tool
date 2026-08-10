@@ -9,6 +9,6 @@
 - setup neon project and env vars
 - enable cors on the backend
 - make project a monorepo and wire api and web into a pnpm workspace. 
-
+- restructure feature folders, remove helloworld deadcode
 
 
