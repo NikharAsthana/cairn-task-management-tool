@@ -1,5 +1,5 @@
-"pnpm run start:dev" for server
-"pnpm dev" for frontend
+"pnpm --filter api start:dev" for server
+"pnpm --filter web dev" for frontend
 
 
 - setup nestjs scaffolding
@@ -8,5 +8,7 @@
 - scaffold nextjs frontend and deploy on vercel
 - setup neon project and env vars
 - enable cors on the backend
+- make project a monorepo and wire api and web into a pnpm workspace. 
+
 
 
