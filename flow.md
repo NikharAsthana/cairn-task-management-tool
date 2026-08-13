@@ -10,5 +10,7 @@
 - enable cors on the backend
 - make project a monorepo and wire api and web into a pnpm workspace. 
 - restructure feature folders, remove helloworld deadcode
+- setup neon, setup prisma, seed data
+- add env validation with joi
 
 
