@@ -11,7 +11,7 @@ export const envValidationSchema = Joi.object({
   // .min(32) isn't arbitrary — a short or guessable JWT signing secret
   // undermines the entire point of signing tokens, since anyone who
   // can guess it can forge a valid-looking login for any user.
-  JWT_EXPIRES_IN: Joi.string().default('7d'),
+  JWT_EXPIRES_IN: Joi.number().default(604800),
 
   // Google OAuth credentials — genuinely needed once Phase 4 builds the
   // real login flow, but I'm leaving them .optional() for now rather
@@ -19,7 +19,7 @@ export const envValidationSchema = Joi.object({
   // Google Cloud console setup we haven't started yet. We'll flip these
   // to .required(), right when Phase 4 wires up the OAuth
   // strategy — flagging that explicitly so it doesn't get forgotten.
-  GOOGLE_CLIENT_ID: Joi.string().optional(),
-  GOOGLE_CLIENT_SECRET: Joi.string().optional(),
-  GOOGLE_CALLBACK_URL: Joi.string().uri().optional(),
+  GOOGLE_CLIENT_ID: Joi.string().required(),
+  GOOGLE_CLIENT_SECRET: Joi.string().required(),
+  GOOGLE_CALLBACK_URL: Joi.string().uri().required(),
 });

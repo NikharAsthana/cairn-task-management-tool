@@ -12,5 +12,5 @@
 - restructure feature folders, remove helloworld deadcode
 - setup neon, setup prisma, seed data
 - add env validation with joi
-
+- add guest and google oauth 
 

@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { PrismaModule } from './prisma/prisma.module';
 import { envValidationSchema } from './config/env.validation';
+import { AuthModule } from './auth/auth.module';
 
 // ConfigModule.forRoot() loads .env into process.env, available app-wide
 
@@ -13,6 +14,7 @@ import { envValidationSchema } from './config/env.validation';
       validationSchema: envValidationSchema,
     }),
     PrismaModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [],
