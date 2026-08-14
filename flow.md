@@ -14,3 +14,12 @@
 - add env validation with joi
 - add guest and google oauth 
 
+
+
+
+
+
+
+
+question: should i include the generated directory in gitignore or not? the deploy breaks if i do.
+

@@ -63,4 +63,51 @@ export class AuthService {
     // blindly from an old token.
     return this.jwt.sign({ sub: userId });
   }
+
+  async findOrCreateGoogleUser(profile: {
+    googleId: string;
+    email?: string;
+    fullName: string;
+    avatarUrl?: string;
+  }) {
+    const existing = await this.prisma.user.findUnique({
+      where: { googleId: profile.googleId },
+    });
+    if (existing) return existing;
+
+    const username = await this.generateUniqueUsername(profile.fullName);
+
+    return this.prisma.user.create({
+      data: {
+        googleId: profile.googleId,
+        email: profile.email,
+        fullName: profile.fullName,
+        username,
+        avatarUrl: profile.avatarUrl,
+        isGuest: false,
+        workspace: {
+          create: { name: `${profile.fullName}'s Workspace` },
+        },
+      },
+    });
+  }
+
+  // Guest usernames (adjective-animal-number) are virtually collision-free by
+  // construction. Real names aren't — two different Google accounts can both
+  // be "John Smith" — so this checks the database and appends a number until
+  // it finds one that's free, instead of assuming a slugified name is safe.
+  private async generateUniqueUsername(fullName: string): Promise<string> {
+    const base = fullName.toLowerCase().trim().replace(/\s+/g, '-');
+    let candidate = base;
+    let attempt = 0;
+
+    while (
+      await this.prisma.user.findUnique({ where: { username: candidate } })
+    ) {
+      attempt += 1;
+      candidate = `${base}-${attempt}`;
+    }
+
+    return candidate;
+  }
 }
