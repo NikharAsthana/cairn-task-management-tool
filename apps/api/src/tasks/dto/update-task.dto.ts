@@ -1,6 +1,5 @@
-import { PartialType, OmitType } from '@nestjs/mapped-types';
 import { CreateTaskDto } from './create-task.dto';
-
+import { PartialType, OmitType } from '@nestjs/swagger';
 // OmitType drops projectId from the shape entirely — this endpoint can't
 // move a task between projects. That's a deliberate scope cut, not an
 // oversight: "move task to another project" is a meaningfully different

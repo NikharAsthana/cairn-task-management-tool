@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
@@ -16,13 +17,29 @@ async function bootstrap() {
 
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true, // strips fields not declared in the DTO
-      forbidNonWhitelisted: true, // 400s the request if extra fields are present, instead of silently dropping them
-      transform: true, // builds a real DTO class instance so decorators like @IsEnum evaluate against typed values, not raw JSON
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
     }),
   );
 
   app.useGlobalFilters(new AllExceptionsFilter());
+
+  // DocumentBuilder assembles the API's metadata (title, description,
+  // version) plus a description of how auth works. addCookieAuth tells
+  // Swagger's UI "this API authenticates via a cookie named access_token"
+  // — that's what makes the interactive "Try it out" button actually
+  // send your session cookie along with test requests, rather than every
+  // protected route just failing with 401 inside the docs page itself.
+  const swaggerConfig = new DocumentBuilder()
+    .setTitle('Cairn API')
+    .setDescription('Task management API — guest login, projects, and tasks')
+    .setVersion('1.0')
+    .addCookieAuth('access_token')
+    .build();
+
+  const document = SwaggerModule.createDocument(app, swaggerConfig);
+  SwaggerModule.setup('api/docs', app, document);
 
   await app.listen(process.env.PORT ?? 3000);
 }

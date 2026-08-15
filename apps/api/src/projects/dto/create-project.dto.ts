@@ -6,19 +6,23 @@ import {
   IsEnum,
   IsISO8601,
 } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Priority } from '../../generated/prisma/enums';
 
 export class CreateProjectDto {
+  @ApiProperty({ example: 'Website Redesign', maxLength: 100 })
   @IsString()
-  @IsNotEmpty() // rejects "", not just missing — a name of "" would pass @IsString()
+  @IsNotEmpty()
   @MaxLength(100)
   name!: string;
 
-  @IsOptional() // this whole decorator stack is skipped if the field is absent
-  @IsEnum(Priority) // must be one of the actual enum values from your schema
+  @ApiPropertyOptional({ enum: Priority, default: Priority.NO_PRIORITY })
+  @IsOptional()
+  @IsEnum(Priority)
   priority?: Priority;
 
+  @ApiPropertyOptional({ format: 'date-time', example: '2026-09-01' })
   @IsOptional()
-  @IsISO8601() // strict date-string format check, e.g. "2026-08-20"
+  @IsISO8601()
   dueDate?: string;
 }
