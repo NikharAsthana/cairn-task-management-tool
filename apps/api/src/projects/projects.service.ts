@@ -1,13 +1,17 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateProjectDto } from './dto/create-project.dto';
+import { WorkspaceContextService } from '../common/workspace-context/workspace-context.service';
 
 @Injectable()
 export class ProjectsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly workspaceContext: WorkspaceContextService,
+  ) {}
 
   async create(userId: string, dto: CreateProjectDto) {
-    const workspaceId = await this.getWorkspaceId(userId);
+    const workspaceId = await this.workspaceContext.getWorkspaceId(userId);
 
     return this.prisma.project.create({
       data: {
@@ -21,7 +25,7 @@ export class ProjectsService {
   }
 
   async findAllForUser(userId: string) {
-    const workspaceId = await this.getWorkspaceId(userId);
+    const workspaceId = await this.workspaceContext.getWorkspaceId(userId);
     return this.prisma.project.findMany({
       where: { workspaceId },
       orderBy: { createdAt: 'desc' },
@@ -29,7 +33,7 @@ export class ProjectsService {
   }
 
   async findOneForUser(userId: string, projectId: string) {
-    const workspaceId = await this.getWorkspaceId(userId);
+    const workspaceId = await this.workspaceContext.getWorkspaceId(userId);
     const project = await this.prisma.project.findFirst({
       where: { id: projectId, workspaceId },
     });
@@ -42,13 +46,5 @@ export class ProjectsService {
     }
 
     return project;
-  }
-
-  private async getWorkspaceId(userId: string): Promise<string> {
-    const user = await this.prisma.user.findUniqueOrThrow({
-      where: { id: userId },
-      select: { workspaceId: true },
-    });
-    return user.workspaceId;
   }
 }
