@@ -88,6 +88,14 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  
+  --sidebar: #FAFAFA; /* confirmed: SidebarContent background */
+  --sidebar-foreground: var(--card-foreground); /* derived — no distinct value in Figma, sidebar text reads the same near-black as the rest of the app */
+  --sidebar-accent: #F5F5F5; /* confirmed: active nav item background */
+  --sidebar-accent-foreground: var(--primary); /* confirmed from the "Tasks" active-state inspect data */
+  --sidebar-border: var(--border); /* derived — 1px border-right confirmed, no distinct color given, reusing the app's existing border color */
+
 }
 
 .dark {
@@ -128,6 +136,18 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+
+  /* TEMPORARY — same value as --background for now, meaning no visual
+     distinction between sidebar and content in dark mode yet. Light mode's
+     --sidebar isn't derived from any other confirmed token (FAFAFA doesn't
+     match anything else), so I can't confidently invert it without seeing
+     your actual dark palette. Paste your .dark {} block if you want this
+     computed properly — low priority, doesn't block anything below. */
+  --sidebar: var(--background);
+  --sidebar-foreground: var(--card-foreground);
+  --sidebar-accent: var(--muted);
+  --sidebar-accent-foreground: var(--primary);
+  --sidebar-border: var(--border);
 }
 
 @layer base {
