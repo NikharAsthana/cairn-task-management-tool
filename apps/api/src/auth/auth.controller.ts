@@ -39,7 +39,10 @@ export class AuthController {
   ) {
     const user = await this.authService.findOrCreateGoogleUser(req.user);
     this.setAuthCookie(res, user.id);
-    res.redirect(this.config.getOrThrow<string>('FRONTEND_URL'));
+    // res.redirect(this.config.getOrThrow<string>('FRONTEND_URL'));
+    // Home redirects to login so this loads the login page again after logging in and makes it look broken.
+    // look at export default function Home() in apps/web/src/app/page.tsx
+    res.redirect(`${this.config.getOrThrow<string>('FRONTEND_URL')}/dashboard`);
   }
 
   @UseGuards(JwtAuthGuard)
