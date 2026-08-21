@@ -17,7 +17,7 @@ This project is **in progress**, not a finished submission. Current state:
 | Theming — light/dark + persistence | ✅ Done |
 | 6-accent color mode | ✅ Done |
 | Backend (auth, Task/Project CRUD, validation, Swagger docs) | ✅ Done |
-| Tasks screen (list view) | ❌ Not started |
+| Tasks screen (list view) | ⏳ In progress |
 | Responsive pass (mobile/tablet) | ❌ Not started |
 | Task Detail / Project Detail / Settings | ⏳ Stub pages planned, not full implementations |
 
