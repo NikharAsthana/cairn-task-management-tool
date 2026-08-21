@@ -102,6 +102,7 @@ pnpm --filter web dev     # Web on http://localhost:3001
 | `NEXT_PUBLIC_API_URL` | Base URL of the API | Yes |
 
 > If you change `PORT`, remember to also update `GOOGLE_CALLBACK_URL`, the redirect URI in Google Cloud Console, and `NEXT_PUBLIC_API_URL` — there's currently no single source of truth for the port.
+> May require DATABASE_URL for Prisma.
 
 ## Design deviations from the Figma source
 
