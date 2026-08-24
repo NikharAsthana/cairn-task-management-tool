@@ -1,0 +1,38 @@
+<svg viewBox="0 0 900 380" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica, Arial, sans-serif">
+  <rect width="900" height="380" fill="#15171c"/>
+
+  <!-- Title -->
+  <text x="30" y="34" fill="#e6e6e6" font-size="18" font-weight="700">Improvement sketch: IEP / Eval due-date urgency treatment</text>
+  <text x="30" y="56" fill="#9aa0a6" font-size="12">Caseload table — "IEP Due" / "Eval Due" columns, unchanged everywhere else</text>
+
+  <!-- BEFORE panel -->
+  <text x="30" y="96" fill="#9aa0a6" font-size="13" font-weight="700">BEFORE (observed)</text>
+  <rect x="30" y="108" width="400" height="120" rx="8" fill="#1b1e24" stroke="#2a2d34"/>
+  <text x="50" y="136" fill="#e6e6e6" font-size="13" font-weight="600">Demo Student1</text>
+  <text x="50" y="160" fill="#cfd2d6" font-size="12">IEP Due   03/26/2023</text>
+  <text x="50" y="182" fill="#cfd2d6" font-size="12">Eval Due  03/25/2023</text>
+  <text x="50" y="210" fill="#6b7078" font-size="11">Same gray text regardless of how overdue.</text>
+
+  <!-- AFTER panel -->
+  <text x="470" y="96" fill="#7cc4ff" font-size="13" font-weight="700">AFTER (proposed)</text>
+  <rect x="470" y="108" width="400" height="120" rx="8" fill="#1b1e24" stroke="#3a2f2f"/>
+  <text x="490" y="136" fill="#e6e6e6" font-size="13" font-weight="600">Demo Student1</text>
+
+  <text x="490" y="160" fill="#ff8a8a" font-size="12" font-weight="700">IEP Due   03/26/2023</text>
+  <rect x="640" y="149" width="110" height="18" rx="9" fill="#3a1f1f"/>
+  <text x="650" y="162" fill="#ff9a9a" font-size="10" font-weight="700">OVERDUE · 3+ YRS</text>
+
+  <text x="490" y="184" fill="#ff8a8a" font-size="12" font-weight="700">Eval Due  03/25/2023</text>
+  <rect x="640" y="173" width="110" height="18" rx="9" fill="#3a1f1f"/>
+  <text x="650" y="186" fill="#ff9a9a" font-size="10" font-weight="700">OVERDUE · 3+ YRS</text>
+
+  <text x="490" y="210" fill="#7cc4ff" font-size="11">Red text + badge scale by proximity:</text>
+  <text x="490" y="224" fill="#6b7078" font-size="10">overdue → red · due ≤30d → amber · else default</text>
+
+  <!-- Legend / rationale -->
+  <rect x="30" y="252" width="840" height="104" rx="8" fill="#1b1e24" stroke="#2a2d34"/>
+  <text x="50" y="276" fill="#e6e6e6" font-size="13" font-weight="700">Why</text>
+  <text x="50" y="298" fill="#cfd2d6" font-size="12">Compliance deadlines (IEP/Eval due dates) carry real legal and funding consequences for schools.</text>
+  <text x="50" y="318" fill="#cfd2d6" font-size="12">On a caseload of 40-60 students, a provider should be able to spot "overdue" or "due soon" at a glance —</text>
+  <text x="50" y="338" fill="#cfd2d6" font-size="12">not by reading every date in every row. Color + a short badge does this without adding a new column.</text>
+</svg>
