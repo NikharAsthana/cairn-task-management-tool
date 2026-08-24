@@ -1,9 +1,37 @@
+// apps/api/src/tasks/tasks.service.ts
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { WorkspaceContextService } from '../common/workspace-context/workspace-context.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { ListTasksQueryDto } from './dto/list-tasks-query.dto';
+import type { TaskStatus, Priority } from '../generated/prisma/enums';
+import type { PublicUserDto } from '../auth/dto/public-user.dto';
+import type { LabelDto } from './dto/task-response.dto';
+
+interface TaskUser {
+  id: string;
+  fullName: string;
+  username: string;
+  isGuest: boolean;
+  avatarUrl: string | null;
+}
+
+interface TaskWithRelations {
+  id: string;
+  title: string;
+  status: TaskStatus;
+  priority: Priority;
+  dueDate: Date | null;
+  projectId: string;
+  parentTaskId: string | null;
+  reporterId: string;
+  createdAt: Date;
+  updatedAt: Date;
+  reporter: TaskUser;
+  assignees: { user: TaskUser }[];
+  labels: { label: { id: string; name: string; color: string } }[];
+}
 
 @Injectable()
 export class TasksService {
@@ -15,11 +43,6 @@ export class TasksService {
   async create(userId: string, dto: CreateTaskDto) {
     const workspaceId = await this.workspaceContext.getWorkspaceId(userId);
 
-    // Confirm the target project actually belongs to the caller's
-    // workspace BEFORE creating anything against it. Without this check,
-    // a malicious client could pass any real projectId — including one
-    // belonging to a completely different workspace — and silently
-    // create a task inside someone else's project.
     const project = await this.prisma.project.findFirst({
       where: { id: dto.projectId, workspaceId },
       select: { id: true },
@@ -28,7 +51,7 @@ export class TasksService {
       throw new NotFoundException('Project not found');
     }
 
-    return this.prisma.task.create({
+    const task = await this.prisma.task.create({
       data: {
         title: dto.title,
         status: dto.status,
@@ -36,18 +59,21 @@ export class TasksService {
         dueDate: dto.dueDate ? new Date(dto.dueDate) : undefined,
         projectId: dto.projectId,
         parentTaskId: dto.parentTaskId,
-        reporterId: userId, // server-derived — same pattern as leadId on Project, never trust a client-supplied reporter
+        reporterId: userId,
+      },
+      include: {
+        assignees: { include: { user: true } },
+        labels: { include: { label: true } },
+        reporter: true,
       },
     });
+
+    return this.toResponseShape(task);
   }
 
   async findAllForUser(userId: string, query: ListTasksQueryDto) {
     const workspaceId = await this.workspaceContext.getWorkspaceId(userId);
 
-    // Filtering through the relation (project: { workspaceId }) means a
-    // task can only ever appear in results if its project genuinely
-    // belongs to the caller's workspace — the same boundary as Projects,
-    // just one relation deeper.
     const where = {
       project: { workspaceId },
       ...(query.projectId && { projectId: query.projectId }),
@@ -60,12 +86,17 @@ export class TasksService {
         orderBy: { createdAt: 'desc' },
         skip: (query.page - 1) * query.limit,
         take: query.limit,
+        include: {
+          assignees: { include: { user: true } },
+          labels: { include: { label: true } },
+          reporter: true,
+        },
       }),
-      this.prisma.task.count({ where }), // total count across ALL matching rows, ignoring skip/take — needed so the client knows how many pages exist
+      this.prisma.task.count({ where }),
     ]);
 
     return {
-      data,
+      data: data.map((task) => this.toResponseShape(task)),
       meta: { page: query.page, limit: query.limit, total },
     };
   }
@@ -74,27 +105,67 @@ export class TasksService {
     const workspaceId = await this.workspaceContext.getWorkspaceId(userId);
     const task = await this.prisma.task.findFirst({
       where: { id: taskId, project: { workspaceId } },
+      include: {
+        assignees: { include: { user: true } },
+        labels: { include: { label: true } },
+        reporter: true,
+      },
     });
     if (!task) {
-      throw new NotFoundException('Task not found'); // 404, not 403 — same reasoning as Projects
+      throw new NotFoundException('Task not found');
     }
-    return task;
+    return this.toResponseShape(task);
   }
 
   async update(userId: string, taskId: string, dto: UpdateTaskDto) {
-    await this.findOneForUser(userId, taskId); // reuses the ownership check rather than duplicating it — throws 404 if not found or not owned
+    await this.findOneForUser(userId, taskId);
 
-    return this.prisma.task.update({
+    const task = await this.prisma.task.update({
       where: { id: taskId },
       data: {
         ...dto,
         dueDate: dto.dueDate ? new Date(dto.dueDate) : undefined,
       },
+      include: {
+        assignees: { include: { user: true } },
+        labels: { include: { label: true } },
+        reporter: true,
+      },
     });
+
+    return this.toResponseShape(task);
   }
 
   async remove(userId: string, taskId: string) {
     await this.findOneForUser(userId, taskId);
     await this.prisma.task.delete({ where: { id: taskId } });
+  }
+
+  private toResponseShape(task: TaskWithRelations) {
+    return {
+      id: task.id,
+      title: task.title,
+      status: task.status,
+      priority: task.priority,
+      dueDate: task.dueDate,
+      projectId: task.projectId,
+      parentTaskId: task.parentTaskId,
+      reporterId: task.reporterId,
+      reporter: this.toPublicUser(task.reporter),
+      assignees: task.assignees.map((a) => this.toPublicUser(a.user)),
+      labels: task.labels.map((l): LabelDto => l.label),
+      createdAt: task.createdAt,
+      updatedAt: task.updatedAt,
+    };
+  }
+
+  private toPublicUser(user: TaskUser): PublicUserDto {
+    return {
+      id: user.id,
+      fullName: user.fullName,
+      username: user.username,
+      isGuest: user.isGuest,
+      avatarUrl: user.avatarUrl,
+    };
   }
 }

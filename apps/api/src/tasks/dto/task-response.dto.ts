@@ -1,5 +1,18 @@
+// apps/api/src/tasks/dto/task-response.dto.ts
 import { ApiProperty } from '@nestjs/swagger';
 import { TaskStatus, Priority } from '../../generated/prisma/enums';
+import { PublicUserDto } from '../../auth/dto/public-user.dto';
+
+export class LabelDto {
+  @ApiProperty({ format: 'uuid' })
+  id!: string;
+
+  @ApiProperty()
+  name!: string;
+
+  @ApiProperty()
+  color!: string;
+}
 
 export class TaskResponseDto {
   @ApiProperty({ format: 'uuid' })
@@ -25,6 +38,15 @@ export class TaskResponseDto {
 
   @ApiProperty({ format: 'uuid' })
   reporterId!: string;
+
+  @ApiProperty({ type: PublicUserDto })
+  reporter!: PublicUserDto;
+
+  @ApiProperty({ type: [PublicUserDto] })
+  assignees!: PublicUserDto[];
+
+  @ApiProperty({ type: [LabelDto] })
+  labels!: LabelDto[];
 
   @ApiProperty({ format: 'date-time' })
   createdAt!: Date;

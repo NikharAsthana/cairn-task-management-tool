@@ -1,5 +1,7 @@
+// apps/api/src/projects/dto/project-response.dto.ts
 import { ApiProperty } from '@nestjs/swagger';
 import { Priority } from '../../generated/prisma/enums';
+import { PublicUserDto } from '../../auth/dto/public-user.dto';
 
 export class ProjectResponseDto {
   @ApiProperty({ format: 'uuid' })
@@ -19,6 +21,9 @@ export class ProjectResponseDto {
 
   @ApiProperty({ format: 'uuid' })
   leadId!: string;
+
+  @ApiProperty({ type: PublicUserDto })
+  lead!: PublicUserDto;
 
   @ApiProperty({ format: 'date-time' })
   createdAt!: Date;
