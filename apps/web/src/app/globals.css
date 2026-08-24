@@ -1,6 +1,6 @@
-@import "tailwindcss";
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -50,28 +50,28 @@
 
 :root {
   /* --- Confirmed from Figma (Login screen Inspect panel) --- */
-  --background: #FFFFFF;
-  --card-foreground: #0A0A0A;
+  --background: #ffffff;
+  --card-foreground: #0a0a0a;
   --muted-foreground: #737373;
   --primary: #171717;
-  --primary-foreground: #FAFAFA;
-  --input: #E5E5E5;
-  --secondary: #F5F5F5;
+  --primary-foreground: #fafafa;
+  --input: #e5e5e5;
+  --secondary: #f5f5f5;
   --secondary-foreground: #171717;
-  --destructive: #DC2626;
-  --border: #E5E5E5;
+  --destructive: #dc2626;
+  --border: #e5e5e5;
   --accent-foreground: #171717;
-  --muted: #F5F5F5;
+  --muted: #f5f5f5;
 
   /* --- Derived (no matching frame in the view-only Figma file) ---
      See README "Documented Deviations" for the reasoning behind each. */
-  --foreground: #0A0A0A;           /* = card-foreground */
-  --card: #FFFFFF;                 /* = background */
-  --popover: #FFFFFF;              /* = background */
-  --popover-foreground: #0A0A0A;   /* = foreground */
-  --accent: #F5F5F5;               /* = secondary */
-  --destructive-foreground: #FAFAFA; /* = primary-foreground */
-  --ring: #171717;                 /* = primary */
+  --foreground: #0a0a0a; /* = card-foreground */
+  --card: #ffffff; /* = background */
+  --popover: #ffffff; /* = background */
+  --popover-foreground: #0a0a0a; /* = foreground */
+  --accent: #f5f5f5; /* = secondary */
+  --destructive-foreground: #fafafa; /* = primary-foreground */
+  --ring: #171717; /* = primary */
 
   /* Not yet backed by real design data — untouched pending Phase 8 */
   --chart-1: oklch(0.87 0 0);
@@ -89,13 +89,17 @@
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
 
-  
-  --sidebar: #FAFAFA; /* confirmed: SidebarContent background */
-  --sidebar-foreground: var(--card-foreground); /* derived — no distinct value in Figma, sidebar text reads the same near-black as the rest of the app */
-  --sidebar-accent: #F5F5F5; /* confirmed: active nav item background */
-  --sidebar-accent-foreground: var(--primary); /* confirmed from the "Tasks" active-state inspect data */
-  --sidebar-border: var(--border); /* derived — 1px border-right confirmed, no distinct color given, reusing the app's existing border color */
-
+  --sidebar: #fafafa; /* confirmed: SidebarContent background */
+  --sidebar-foreground: var(
+    --card-foreground
+  ); /* derived — no distinct value in Figma, sidebar text reads the same near-black as the rest of the app */
+  --sidebar-accent: #f5f5f5; /* confirmed: active nav item background */
+  --sidebar-accent-foreground: var(
+    --primary
+  ); /* confirmed from the "Tasks" active-state inspect data */
+  --sidebar-border: var(
+    --border
+  ); /* derived — 1px border-right confirmed, no distinct color given, reusing the app's existing border color */
 }
 
 .dark {
@@ -103,25 +107,25 @@
      view-only access (see docs/design-tokens.md). Palette below follows the
      same relationships as :root above, inverted. Documented as an
      intentional deviation in the README per the brief's requirement. --- */
-  --background: #0A0A0A;
-  --foreground: #FAFAFA;
+  --background: #0a0a0a;
+  --foreground: #fafafa;
   --card: #171717;
-  --card-foreground: #FAFAFA;
+  --card-foreground: #fafafa;
   --popover: #171717;
-  --popover-foreground: #FAFAFA;
-  --primary: #FAFAFA;
+  --popover-foreground: #fafafa;
+  --primary: #fafafa;
   --primary-foreground: #171717;
   --secondary: #262626;
-  --secondary-foreground: #FAFAFA;
+  --secondary-foreground: #fafafa;
   --muted: #262626;
-  --muted-foreground: #A3A3A3;
+  --muted-foreground: #a3a3a3;
   --accent: #262626;
-  --accent-foreground: #FAFAFA;
-  --destructive: #F87171;
-  --destructive-foreground: #FAFAFA;
+  --accent-foreground: #fafafa;
+  --destructive: #f87171;
+  --destructive-foreground: #fafafa;
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: #A3A3A3;
+  --ring: #a3a3a3;
 
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
@@ -160,4 +164,35 @@
   html {
     @apply font-sans;
   }
+}
+
+[data-color-mode='amber'] {
+  --primary: #d97706;
+  --primary-foreground: #fafafa;
+  --ring: #d97706;
+  --sidebar-accent-foreground: #d97706;
+}
+[data-color-mode='blue'] {
+  --primary: #2563eb;
+  --primary-foreground: #fafafa;
+  --ring: #2563eb;
+  --sidebar-accent-foreground: #2563eb;
+}
+[data-color-mode='pink'] {
+  --primary: #db2777;
+  --primary-foreground: #fafafa;
+  --ring: #db2777;
+  --sidebar-accent-foreground: #db2777;
+}
+[data-color-mode='rose'] {
+  --primary: #e11d48;
+  --primary-foreground: #fafafa;
+  --ring: #e11d48;
+  --sidebar-accent-foreground: #e11d48;
+}
+[data-color-mode='emerald'] {
+  --primary: #059669;
+  --primary-foreground: #fafafa;
+  --ring: #059669;
+  --sidebar-accent-foreground: #059669;
 }
