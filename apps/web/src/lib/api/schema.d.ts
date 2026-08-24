@@ -160,6 +160,13 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        PublicUserDto: {
+            id: string;
+            fullName: string;
+            username: string;
+            isGuest: boolean;
+            avatarUrl: string | null;
+        };
         CreateProjectDto: {
             /** @example Website Redesign */
             name: string;
@@ -186,6 +193,7 @@ export interface components {
             workspaceId: string;
             /** Format: uuid */
             leadId: string;
+            lead: components["schemas"]["PublicUserDto"];
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
@@ -214,6 +222,12 @@ export interface components {
             /** Format: uuid */
             parentTaskId?: string;
         };
+        LabelDto: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            color: string;
+        };
         TaskResponseDto: {
             /** Format: uuid */
             id: string;
@@ -230,6 +244,9 @@ export interface components {
             parentTaskId: string | null;
             /** Format: uuid */
             reporterId: string;
+            reporter: components["schemas"]["PublicUserDto"];
+            assignees: components["schemas"]["PublicUserDto"][];
+            labels: components["schemas"]["LabelDto"][];
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
@@ -304,7 +321,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["PublicUserDto"];
+                };
             };
         };
     };
@@ -355,7 +374,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["PublicUserDto"];
+                };
             };
         };
     };

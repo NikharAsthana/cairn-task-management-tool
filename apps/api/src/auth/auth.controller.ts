@@ -3,10 +3,12 @@ import { Controller, Post, Get, UseGuards, Req, Res } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { AuthGuard } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
+import { ApiCreatedResponse, ApiOkResponse } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { PrismaService } from '../prisma/prisma.service';
 import type { GoogleProfile } from './strategies/google.strategy';
+import { PublicUserDto } from './dto/public-user.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -17,6 +19,7 @@ export class AuthController {
   ) {}
 
   @Post('guest')
+  @ApiCreatedResponse({ type: PublicUserDto })
   async guestLogin(@Res({ passthrough: true }) res: Response) {
     const user = await this.authService.createGuestUser();
     this.setAuthCookie(res, user.id);
@@ -39,14 +42,12 @@ export class AuthController {
   ) {
     const user = await this.authService.findOrCreateGoogleUser(req.user);
     this.setAuthCookie(res, user.id);
-    // res.redirect(this.config.getOrThrow<string>('FRONTEND_URL'));
-    // Home redirects to login so this loads the login page again after logging in and makes it look broken.
-    // look at export default function Home() in apps/web/src/app/page.tsx
     res.redirect(`${this.config.getOrThrow<string>('FRONTEND_URL')}/dashboard`);
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('me')
+  @ApiOkResponse({ type: PublicUserDto })
   async me(@Req() req: Request & { user: { userId: string } }) {
     const user = await this.prisma.user.findUniqueOrThrow({
       where: { id: req.user.userId },
@@ -72,12 +73,14 @@ export class AuthController {
     fullName: string;
     username: string;
     isGuest: boolean;
-  }) {
+    avatarUrl: string | null;
+  }): PublicUserDto {
     return {
       id: user.id,
       fullName: user.fullName,
       username: user.username,
       isGuest: user.isGuest,
+      avatarUrl: user.avatarUrl,
     };
   }
 }
