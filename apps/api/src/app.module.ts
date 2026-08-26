@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { ProjectsModule } from './projects/projects.module';
 import { WorkspaceContextModule } from './common/workspace-context/workspace-context.module';
 import { TasksModule } from './tasks/tasks.module';
+import { UsersModule } from './users/users.module';
 
 // ConfigModule.forRoot() loads .env into process.env, available app-wide
 
@@ -21,6 +22,7 @@ import { TasksModule } from './tasks/tasks.module';
     ProjectsModule,
     WorkspaceContextModule,
     TasksModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [],

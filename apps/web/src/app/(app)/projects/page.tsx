@@ -1,6 +1,7 @@
 // apps/web/src/app/(app)/projects/page.tsx
 'use client';
 
+import Link from 'next/link';
 import { PriorityBadge } from '@/components/shared/priority-badge';
 import { AddProjectDialog } from '@/components/shared/add-project-dialog';
 import { useProjects } from '@/hooks/use-projects';
@@ -57,7 +58,9 @@ export default function ProjectsPage() {
             {projects?.map((project) => (
               <tr key={project.id} className="h-12 border-t border-border">
                 <td className="px-4 font-medium text-foreground">
-                  {project.name}
+                  <Link href={`/projects/${project.id}`} className="hover:underline">
+                    {project.name}
+                  </Link>
                 </td>
                 <td className="px-4">
                   <PriorityBadge priority={project.priority} />

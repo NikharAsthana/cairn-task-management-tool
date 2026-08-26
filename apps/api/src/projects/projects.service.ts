@@ -21,6 +21,7 @@ interface ProjectWithLead {
     username: string;
     isGuest: boolean;
     avatarUrl: string | null;
+    title: string | null;
   };
 }
 
@@ -39,8 +40,8 @@ export class ProjectsService {
         name: dto.name,
         priority: dto.priority,
         dueDate: dto.dueDate ? new Date(dto.dueDate) : undefined,
-        workspaceId, // server-derived, never trust a client-supplied value here
-        leadId: userId, // same — creator becomes lead by default
+        workspaceId,
+        leadId: userId,
       },
       include: { lead: true },
     });
@@ -66,9 +67,6 @@ export class ProjectsService {
     });
 
     if (!project) {
-      // 404, deliberately not 403. A 403 ("Forbidden") confirms the ID is
-      // real but not yours — that's a small information leak about what
-      // exists in other workspaces. A flat 404 reveals nothing either way.
       throw new NotFoundException('Project not found');
     }
 
@@ -96,6 +94,7 @@ export class ProjectsService {
       username: user.username,
       isGuest: user.isGuest,
       avatarUrl: user.avatarUrl,
+      title: user.title,
     };
   }
 }

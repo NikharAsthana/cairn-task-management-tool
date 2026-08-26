@@ -16,4 +16,7 @@ export class PublicUserDto {
 
   @ApiProperty({ type: String, nullable: true })
   avatarUrl!: string | null;
+
+  @ApiProperty({ type: String, nullable: true })
+  title!: string | null;
 }

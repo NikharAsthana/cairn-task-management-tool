@@ -15,6 +15,7 @@ interface TaskUser {
   username: string;
   isGuest: boolean;
   avatarUrl: string | null;
+  title: string | null;
 }
 
 interface TaskWithRelations {
@@ -166,6 +167,7 @@ export class TasksService {
       username: user.username,
       isGuest: user.isGuest,
       avatarUrl: user.avatarUrl,
+      title: user.title,
     };
   }
 }

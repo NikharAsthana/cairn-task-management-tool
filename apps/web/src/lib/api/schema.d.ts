@@ -156,6 +156,22 @@ export interface paths {
         patch: operations["TasksController_update"];
         trace?: never;
     };
+    "/users/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["UsersController_updateMe"];
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -166,6 +182,7 @@ export interface components {
             username: string;
             isGuest: boolean;
             avatarUrl: string | null;
+            title: string | null;
         };
         CreateProjectDto: {
             /** @example Website Redesign */
@@ -281,6 +298,14 @@ export interface components {
             dueDate?: string;
             /** Format: uuid */
             parentTaskId?: string;
+        };
+        UpdateUserDto: {
+            /** @example Dexter */
+            fullName?: string;
+            /** @example Designer */
+            title?: string;
+            /** @example dexuser */
+            username?: string;
         };
     };
     responses: never;
@@ -590,6 +615,29 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    UsersController_updateMe: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateUserDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicUserDto"];
+                };
             };
         };
     };

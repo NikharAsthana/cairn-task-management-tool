@@ -26,8 +26,12 @@ import { apiClient } from "@/lib/api/client";
 import { useProjects } from "@/hooks/use-projects";
 import type { components } from "@/lib/api/schema";
 
-type Priority = components["schemas"]["CreateTaskDto"]["priority"];
-type TaskStatus = components["schemas"]["CreateTaskDto"]["status"];
+// NonNullable strips the `| undefined` that comes from these being
+// *optional* fields on CreateTaskDto — a request-schema artifact, not a
+// real runtime possibility. Every value below is a fixed, always-present
+// literal.
+type Priority = NonNullable<components["schemas"]["CreateTaskDto"]["priority"]>;
+type TaskStatus = NonNullable<components["schemas"]["CreateTaskDto"]["status"]>;
 
 const PRIORITY_OPTIONS: { value: Priority; label: string }[] = [
   { value: "NO_PRIORITY", label: "No Priority" },
@@ -38,26 +42,32 @@ const PRIORITY_OPTIONS: { value: Priority; label: string }[] = [
 ];
 
 interface AddTaskDialogProps {
-  // Pre-fills the task's status with whichever column's "+" was clicked —
-  // matches the per-column "Add Task" affordance in the Figma board.
   defaultStatus: TaskStatus;
+  projectId?: string;
+  variant?: "icon" | "row";
 }
 
-export function AddTaskDialog({ defaultStatus }: AddTaskDialogProps) {
+export function AddTaskDialog({
+  defaultStatus,
+  projectId,
+  variant = "icon",
+}: AddTaskDialogProps) {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
-  const [projectId, setProjectId] = useState("");
+  const [selectedProjectId, setSelectedProjectId] = useState("");
   const [priority, setPriority] = useState<Priority>("NO_PRIORITY");
   const [dueDate, setDueDate] = useState("");
   const queryClient = useQueryClient();
   const { data: projects } = useProjects();
+
+  const effectiveProjectId = projectId ?? selectedProjectId;
 
   const createTask = useMutation({
     mutationFn: async () => {
       const { data, error } = await apiClient.POST("/tasks", {
         body: {
           title,
-          projectId,
+          projectId: effectiveProjectId,
           status: defaultStatus,
           priority,
           ...(dueDate && { dueDate }),
@@ -70,7 +80,7 @@ export function AddTaskDialog({ defaultStatus }: AddTaskDialogProps) {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
       setOpen(false);
       setTitle("");
-      setProjectId("");
+      setSelectedProjectId("");
       setPriority("NO_PRIORITY");
       setDueDate("");
     },
@@ -79,9 +89,19 @@ export function AddTaskDialog({ defaultStatus }: AddTaskDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <button type="button" className="rounded p-1 hover:bg-accent">
-          <Plus className="h-4 w-4" />
-        </button>
+        {variant === "row" ? (
+          <button
+            type="button"
+            className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+          >
+            <Plus className="h-4 w-4" />
+            Add Task
+          </button>
+        ) : (
+          <button type="button" className="rounded p-1 hover:bg-accent">
+            <Plus className="h-4 w-4" />
+          </button>
+        )}
       </DialogTrigger>
 
       <DialogContent>
@@ -100,26 +120,28 @@ export function AddTaskDialog({ defaultStatus }: AddTaskDialogProps) {
             />
           </div>
 
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="task-project">Project</Label>
-            <Select value={projectId} onValueChange={setProjectId}>
-              <SelectTrigger id="task-project">
-                <SelectValue placeholder="Select a project" />
-              </SelectTrigger>
-              <SelectContent>
-                {projects?.map((project) => (
-                  <SelectItem key={project.id} value={project.id}>
-                    {project.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {projects?.length === 0 && (
-              <p className="text-xs text-muted-foreground">
-                No projects yet — create one on the Projects page first.
-              </p>
-            )}
-          </div>
+          {!projectId && (
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="task-project">Project</Label>
+              <Select value={selectedProjectId} onValueChange={setSelectedProjectId}>
+                <SelectTrigger id="task-project">
+                  <SelectValue placeholder="Select a project" />
+                </SelectTrigger>
+                <SelectContent>
+                  {projects?.map((project) => (
+                    <SelectItem key={project.id} value={project.id}>
+                      {project.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {projects?.length === 0 && (
+                <p className="text-xs text-muted-foreground">
+                  No projects yet — create one on the Projects page first.
+                </p>
+              )}
+            </div>
+          )}
 
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="task-priority">Priority</Label>
@@ -152,7 +174,7 @@ export function AddTaskDialog({ defaultStatus }: AddTaskDialogProps) {
         <DialogFooter>
           <Button
             onClick={() => createTask.mutate()}
-            disabled={!title || !projectId || createTask.isPending}
+            disabled={!title || !effectiveProjectId || createTask.isPending}
             className="h-9 rounded-full bg-primary font-medium text-primary-foreground hover:bg-primary/90"
           >
             {createTask.isPending ? "Creating…" : "Create task"}

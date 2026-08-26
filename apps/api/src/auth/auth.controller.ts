@@ -74,6 +74,7 @@ export class AuthController {
     username: string;
     isGuest: boolean;
     avatarUrl: string | null;
+    title: string | null;
   }): PublicUserDto {
     return {
       id: user.id,
@@ -81,6 +82,7 @@ export class AuthController {
       username: user.username,
       isGuest: user.isGuest,
       avatarUrl: user.avatarUrl,
+      title: user.title,
     };
   }
 }

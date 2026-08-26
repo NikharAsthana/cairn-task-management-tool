@@ -25,7 +25,7 @@ import {
 import { apiClient } from "@/lib/api/client";
 import type { components } from "@/lib/api/schema";
 
-type Priority = components["schemas"]["CreateProjectDto"]["priority"];
+type Priority = NonNullable<components["schemas"]["CreateProjectDto"]["priority"]>;
 
 const PRIORITY_OPTIONS: { value: Priority; label: string }[] = [
   { value: "NO_PRIORITY", label: "No Priority" },
@@ -106,10 +106,6 @@ export function AddProjectDialog() {
 
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="project-due-date">Due date (optional)</Label>
-            {/* Native date input — not a pixel match for Figma's calendar
-                widget (already flagged as a TODO in design-tokens.md), but
-                fully functional and accessible. Fine as-is; revisit only if
-                there's a dedicated polish pass later. */}
             <input
               id="project-due-date"
               type="date"
