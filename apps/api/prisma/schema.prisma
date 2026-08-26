@@ -87,6 +87,7 @@ model Project {
 model Task {
   id           String     @id @default(uuid()) @db.Uuid
   title        String
+  description  String?
   status       TaskStatus @default(TODO)
   priority     Priority   @default(NO_PRIORITY)
   dueDate      DateTime?
