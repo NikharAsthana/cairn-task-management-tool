@@ -17,7 +17,13 @@ const specUrl = new URL("/api/docs-json", apiBaseUrl);
 
 console.log(`Generating types from ${specUrl}`);
 
-const ast = await openapiTS(specUrl);
+// defaultNonNullable: false — without this, openapi-typescript treats any
+// property with an OpenAPI `default` as always-required, since that's
+// correct for response types (a defaulted field is always present when you
+// read it back) but wrong for request bodies (a default exists precisely
+// so the client CAN omit the field). One generated type is shared between
+// both directions, so this flag is needed to keep request types honest.
+const ast = await openapiTS(specUrl, { defaultNonNullable: false });
 const body = astToString(ast);
 
 const header = [

@@ -174,7 +174,7 @@ export interface components {
              * @default NO_PRIORITY
              * @enum {string}
              */
-            priority: "NO_PRIORITY" | "LOW" | "MEDIUM" | "HIGH" | "URGENT";
+            priority?: "NO_PRIORITY" | "LOW" | "MEDIUM" | "HIGH" | "URGENT";
             /**
              * Format: date-time
              * @example 2026-09-01
@@ -208,12 +208,12 @@ export interface components {
              * @default TODO
              * @enum {string}
              */
-            status: "BACKLOG" | "TODO" | "IN_PROGRESS" | "ON_HOLD" | "DONE";
+            status?: "BACKLOG" | "TODO" | "IN_PROGRESS" | "ON_HOLD" | "DONE";
             /**
              * @default NO_PRIORITY
              * @enum {string}
              */
-            priority: "NO_PRIORITY" | "LOW" | "MEDIUM" | "HIGH" | "URGENT";
+            priority?: "NO_PRIORITY" | "LOW" | "MEDIUM" | "HIGH" | "URGENT";
             /**
              * Format: date-time
              * @example 2026-08-20
@@ -268,12 +268,12 @@ export interface components {
              * @default TODO
              * @enum {string}
              */
-            status: "BACKLOG" | "TODO" | "IN_PROGRESS" | "ON_HOLD" | "DONE";
+            status?: "BACKLOG" | "TODO" | "IN_PROGRESS" | "ON_HOLD" | "DONE";
             /**
              * @default NO_PRIORITY
              * @enum {string}
              */
-            priority: "NO_PRIORITY" | "LOW" | "MEDIUM" | "HIGH" | "URGENT";
+            priority?: "NO_PRIORITY" | "LOW" | "MEDIUM" | "HIGH" | "URGENT";
             /**
              * Format: date-time
              * @example 2026-08-20
