@@ -3,6 +3,7 @@
 
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
+import { MotionButton } from "@/components/shared/motion-button";
 import { Button } from "@/components/ui/button";
 import { GoogleIcon } from "@/components/shared/google-icon";
 import { apiClient } from "@/lib/api/client";
@@ -23,14 +24,22 @@ export function LoginActions() {
 
   return (
     <div className="flex flex-col gap-3">
-      <Button
+      <MotionButton
+        whileHover={{ scale: 1.01 }}
+        whileTap={{ scale: 0.97 }}
+        transition={{ duration: 0.15 }}
         onClick={() => guestLogin.mutate()}
         disabled={guestLogin.isPending}
         className="h-9 rounded-full bg-primary font-medium text-primary-foreground hover:bg-primary/90"
       >
         {guestLogin.isPending ? "Signing in…" : "Continue as Guest"}
-      </Button>
+      </MotionButton>
 
+      {/* Left as a plain Button — this one's asChild-wrapping a real <a>
+          for OAuth's full-page navigation (see the lint-rule fix a few
+          phases back). Motion's gesture props don't compose cleanly
+          through that same asChild/Slot indirection, and the visual gap
+          from skipping tap feedback on just this one button is minor. */}
       <Button
         asChild
         variant="outline"

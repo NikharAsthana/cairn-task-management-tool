@@ -1,14 +1,15 @@
 // apps/web/src/app/settings/profile-form.tsx
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { useUpdateProfile } from "@/hooks/use-update-profile";
-import type { components } from "@/lib/api/schema";
+import { useState } from 'react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+// import { Button } from '@/components/ui/button';
+import { MotionButton } from "@/components/shared/motion-button";
+import { useUpdateProfile } from '@/hooks/use-update-profile';
+import type { components } from '@/lib/api/schema';
 
-type User = components["schemas"]["PublicUserDto"];
+type User = components['schemas']['PublicUserDto'];
 
 interface ProfileFormProps {
   user: User;
@@ -23,7 +24,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
   // recommend instead of "sync via effect" for this exact situation:
   // https://react.dev/learn/you-might-not-need-an-effect#adjusting-some-state-when-a-prop-changes
   const [fullName, setFullName] = useState(user.fullName);
-  const [title, setTitle] = useState(user.title ?? "");
+  const [title, setTitle] = useState(user.title ?? '');
   const [username, setUsername] = useState(user.username);
 
   const updateProfile = useUpdateProfile();
@@ -47,7 +48,9 @@ export function ProfileForm({ user }: ProfileFormProps) {
           <Label htmlFor="settings-title" className="text-sm text-foreground">
             Title
           </Label>
-          <p className="text-xs text-muted-foreground">Your job title or role</p>
+          <p className="text-xs text-muted-foreground">
+            Your job title or role
+          </p>
         </div>
         <Input
           id="settings-title"
@@ -60,7 +63,10 @@ export function ProfileForm({ user }: ProfileFormProps) {
 
       <div className="flex items-center justify-between p-4">
         <div>
-          <Label htmlFor="settings-username" className="text-sm text-foreground">
+          <Label
+            htmlFor="settings-username"
+            className="text-sm text-foreground"
+          >
             Username
           </Label>
           <p className="text-xs text-muted-foreground">
@@ -81,13 +87,23 @@ export function ProfileForm({ user }: ProfileFormProps) {
             Couldn&apos;t save — that username might already be taken.
           </p>
         )}
-        <Button
+        {/* <Button
           onClick={() => updateProfile.mutate({ fullName, title, username })}
           disabled={updateProfile.isPending}
           className="h-9 rounded-full bg-primary font-medium text-primary-foreground hover:bg-primary/90"
         >
           {updateProfile.isPending ? "Saving…" : "Save changes"}
-        </Button>
+        </Button> */}
+        <MotionButton
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.97 }}
+          transition={{ duration: 0.15 }}
+          onClick={() => updateProfile.mutate({ fullName, title, username })}
+          disabled={updateProfile.isPending}
+          className="h-9 rounded-full bg-primary font-medium text-primary-foreground hover:bg-primary/90"
+        >
+          {updateProfile.isPending ? 'Saving…' : 'Save changes'}
+        </MotionButton>
       </div>
     </>
   );
