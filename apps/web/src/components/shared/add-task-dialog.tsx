@@ -1,9 +1,9 @@
 // apps/web/src/components/shared/add-task-dialog.tsx
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus } from "lucide-react";
+import { useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Plus } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -11,52 +11,53 @@ import {
   DialogTitle,
   DialogTrigger,
   DialogFooter,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { apiClient } from "@/lib/api/client";
-import { useProjects } from "@/hooks/use-projects";
-import type { components } from "@/lib/api/schema";
+} from '@/components/ui/select';
+// import { Button } from '@/components/ui/button';
+import { MotionButton } from "@/components/shared/motion-button";
+import { apiClient } from '@/lib/api/client';
+import { useProjects } from '@/hooks/use-projects';
+import type { components } from '@/lib/api/schema';
 
 // NonNullable strips the `| undefined` that comes from these being
 // *optional* fields on CreateTaskDto — a request-schema artifact, not a
 // real runtime possibility. Every value below is a fixed, always-present
 // literal.
-type Priority = NonNullable<components["schemas"]["CreateTaskDto"]["priority"]>;
-type TaskStatus = NonNullable<components["schemas"]["CreateTaskDto"]["status"]>;
+type Priority = NonNullable<components['schemas']['CreateTaskDto']['priority']>;
+type TaskStatus = NonNullable<components['schemas']['CreateTaskDto']['status']>;
 
 const PRIORITY_OPTIONS: { value: Priority; label: string }[] = [
-  { value: "NO_PRIORITY", label: "No Priority" },
-  { value: "URGENT", label: "Urgent" },
-  { value: "HIGH", label: "High" },
-  { value: "MEDIUM", label: "Medium" },
-  { value: "LOW", label: "Low" },
+  { value: 'NO_PRIORITY', label: 'No Priority' },
+  { value: 'URGENT', label: 'Urgent' },
+  { value: 'HIGH', label: 'High' },
+  { value: 'MEDIUM', label: 'Medium' },
+  { value: 'LOW', label: 'Low' },
 ];
 
 interface AddTaskDialogProps {
   defaultStatus: TaskStatus;
   projectId?: string;
-  variant?: "icon" | "row";
+  variant?: 'icon' | 'row';
 }
 
 export function AddTaskDialog({
   defaultStatus,
   projectId,
-  variant = "icon",
+  variant = 'icon',
 }: AddTaskDialogProps) {
   const [open, setOpen] = useState(false);
-  const [title, setTitle] = useState("");
-  const [selectedProjectId, setSelectedProjectId] = useState("");
-  const [priority, setPriority] = useState<Priority>("NO_PRIORITY");
-  const [dueDate, setDueDate] = useState("");
+  const [title, setTitle] = useState('');
+  const [selectedProjectId, setSelectedProjectId] = useState('');
+  const [priority, setPriority] = useState<Priority>('NO_PRIORITY');
+  const [dueDate, setDueDate] = useState('');
   const queryClient = useQueryClient();
   const { data: projects } = useProjects();
 
@@ -64,7 +65,7 @@ export function AddTaskDialog({
 
   const createTask = useMutation({
     mutationFn: async () => {
-      const { data, error } = await apiClient.POST("/tasks", {
+      const { data, error } = await apiClient.POST('/tasks', {
         body: {
           title,
           projectId: effectiveProjectId,
@@ -77,19 +78,19 @@ export function AddTaskDialog({
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
       setOpen(false);
-      setTitle("");
-      setSelectedProjectId("");
-      setPriority("NO_PRIORITY");
-      setDueDate("");
+      setTitle('');
+      setSelectedProjectId('');
+      setPriority('NO_PRIORITY');
+      setDueDate('');
     },
   });
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        {variant === "row" ? (
+        {variant === 'row' ? (
           <button
             type="button"
             className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
@@ -123,7 +124,10 @@ export function AddTaskDialog({
           {!projectId && (
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="task-project">Project</Label>
-              <Select value={selectedProjectId} onValueChange={setSelectedProjectId}>
+              <Select
+                value={selectedProjectId}
+                onValueChange={setSelectedProjectId}
+              >
                 <SelectTrigger id="task-project">
                   <SelectValue placeholder="Select a project" />
                 </SelectTrigger>
@@ -145,7 +149,10 @@ export function AddTaskDialog({
 
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="task-priority">Priority</Label>
-            <Select value={priority} onValueChange={(v) => setPriority(v as Priority)}>
+            <Select
+              value={priority}
+              onValueChange={(v) => setPriority(v as Priority)}
+            >
               <SelectTrigger id="task-priority">
                 <SelectValue />
               </SelectTrigger>
@@ -172,13 +179,23 @@ export function AddTaskDialog({
         </div>
 
         <DialogFooter>
-          <Button
+          {/* <Button
             onClick={() => createTask.mutate()}
             disabled={!title || !effectiveProjectId || createTask.isPending}
             className="h-9 rounded-full bg-primary font-medium text-primary-foreground hover:bg-primary/90"
           >
             {createTask.isPending ? "Creating…" : "Create task"}
-          </Button>
+          </Button> */}
+          <MotionButton
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.97 }}
+            transition={{ duration: 0.15 }}
+            onClick={() => createTask.mutate()}
+            disabled={!title || !effectiveProjectId || createTask.isPending}
+            className="h-9 rounded-full bg-primary font-medium text-primary-foreground hover:bg-primary/90"
+          >
+            {createTask.isPending ? 'Creating…' : 'Create task'}
+          </MotionButton>
         </DialogFooter>
 
         {createTask.isError && (
