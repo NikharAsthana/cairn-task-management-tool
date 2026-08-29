@@ -46,7 +46,15 @@ const COLOR_MODES: { value: ColorMode; label: string; swatch: string }[] = [
   { value: "black", label: "Black", swatch: "#171717" },
 ];
 
-export function AppSidebar() {
+// onNavigate is new: an optional callback fired whenever this sidebar causes
+// a route change (a nav link, or the Settings item in the dropdown). It's
+// optional because the desktop-fixed sidebar has no drawer to close and will
+// simply never pass it — this same component now serves both contexts.
+interface AppSidebarProps {
+  onNavigate?: () => void;
+}
+
+export function AppSidebar({ onNavigate }: AppSidebarProps) {
   const pathname = usePathname();
   const [workspaceOpen, setWorkspaceOpen] = useState(true);
   const { theme, setTheme } = useTheme();
@@ -162,7 +170,11 @@ export function AppSidebar() {
             <DropdownMenuSeparator />
 
             <DropdownMenuItem asChild>
-              <Link href="/settings">
+              {/* onNavigate added here too: this is a real route change
+                  (to /settings) even though it lives inside the dropdown,
+                  not the main nav list — the drawer should close for this
+                  the same as any other link. */}
+              <Link href="/settings" onClick={onNavigate}>
                 <SettingsIcon className="mr-2 h-4 w-4" />
                 Settings
               </Link>
@@ -194,6 +206,7 @@ export function AppSidebar() {
                 <Link
                   key={href}
                   href={href}
+                  onClick={onNavigate}
                   className={cn(
                     "flex h-9 items-center gap-2 rounded-xl px-3 text-sm font-medium leading-none",
                     isActive
