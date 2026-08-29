@@ -43,7 +43,11 @@ export function TaskCard({ task }: TaskCardProps) {
             className="inline-flex items-center gap-1 rounded-3xl px-2 py-0.5 text-xs"
             style={{ backgroundColor: "rgb(220 38 38 / 0.1)", color: "var(--destructive)" }}
           >
-            <Calendar className="h-3 w-3" />
+            {/* aria-hidden: the visible date text right after this icon
+                already says the same thing — without this, some screen
+                readers announce the icon separately as an unlabeled
+                graphic, which is just noise on top of real information. */}
+            <Calendar className="h-3 w-3" aria-hidden="true" />
             {formatDueDate(task.dueDate)}
           </span>
         )}
@@ -56,7 +60,7 @@ export function TaskCard({ task }: TaskCardProps) {
               key={label.id}
               className="inline-flex items-center gap-1 rounded-3xl bg-secondary px-2 py-0.5 text-xs text-secondary-foreground"
             >
-              <Tag className="h-3 w-3 text-foreground" />
+              <Tag className="h-3 w-3 text-foreground" aria-hidden="true" />
               {label.name}
             </span>
           ))}
