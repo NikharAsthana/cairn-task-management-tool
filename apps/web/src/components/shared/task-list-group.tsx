@@ -36,21 +36,30 @@ export function TaskListGroup({ label, status, projectId, tasks }: TaskListGroup
       </button>
 
       {open && (
-        <div className="overflow-hidden rounded-md border border-border">
-          <table className="w-full text-sm">
+        <div className="overflow-x-auto rounded-md border border-border">
+          {/* table-fixed: switches from the browser default
+              (table-layout: auto, which sizes each table's columns off
+              its own content) to fixed layout, which reads column widths
+              once from the header row below and applies them uniformly.
+              This is what makes all three separate <table>s (one per
+              status group) line up instead of drifting independently. */}
+          <table className="w-full min-w-[640px] table-fixed text-sm">
             <thead>
               <tr className="h-12 bg-muted text-left font-medium text-primary">
+                {/* Task: no explicit width — table-fixed gives it
+                    whatever's left after the other four columns claim
+                    their fixed widths below. */}
                 <th className="px-4">Task</th>
-                <th className="px-4">Priority</th>
-                <th className="px-4">Members</th>
-                <th className="px-4">Due Date</th>
+                <th className="w-32 px-4">Priority</th>
+                <th className="w-32 px-4">Members</th>
+                <th className="w-28 px-4">Due Date</th>
                 <th className="w-16 px-4" />
               </tr>
             </thead>
             <tbody>
               {tasks.map((task) => (
                 <tr key={task.id} className="h-12 border-t border-border">
-                  <td className="px-4">
+                  <td className="truncate px-4">
                     <Link href={`/tasks/${task.id}`} className="font-medium text-foreground hover:underline">
                       {task.title}
                     </Link>
