@@ -99,7 +99,15 @@ export function AddTaskDialog({
             Add Task
           </button>
         ) : (
-          <button type="button" className="rounded p-1 hover:bg-accent">
+          // aria-label: no visible text on this variant — icon only — so
+          // without it, a screen reader announces nothing meaningful when
+          // it receives focus. The "row" variant above needs no such
+          // label since "Add Task" is already visible, readable text.
+          <button
+            type="button"
+            aria-label="Add task"
+            className="rounded p-1 hover:bg-accent"
+          >
             <Plus className="h-4 w-4" />
           </button>
         )}
@@ -173,7 +181,7 @@ export function AddTaskDialog({
               type="date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
-              className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+              className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
             />
           </div>
         </div>

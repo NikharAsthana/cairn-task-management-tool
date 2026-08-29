@@ -1,3 +1,4 @@
+// apps/web/src/components/ui/dialog.tsx
 "use client"
 
 import * as React from "react"
@@ -61,7 +62,18 @@ function DialogContent({
       <DialogPrimitive.Content
         data-slot="dialog-content"
         className={cn(
-          "fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl bg-popover p-4 text-sm text-popover-foreground ring-1 ring-foreground/10 duration-100 outline-none sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+          // max-h-[calc(100dvh-2rem)]: same "viewport minus 2rem margin"
+          // idea as the existing width rule, applied to height. dvh
+          // ("dynamic viewport height") is used instead of the older vh
+          // unit deliberately — vh is fixed to the *initial* viewport
+          // size, so on mobile browsers where the URL bar shrinks/grows
+          // as you scroll, vh can be measuring against a viewport
+          // slightly taller than what's actually visible. dvh tracks the
+          // real, current visible height instead.
+          // overflow-y-auto: without this, capping max-height just makes
+          // the excess content invisible instead of clipped — a scroll
+          // container is what actually lets you reach it.
+          "fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] max-h-[calc(100dvh-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 overflow-y-auto rounded-xl bg-popover p-4 text-sm text-popover-foreground ring-1 ring-foreground/10 duration-100 outline-none sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
           className
         )}
         {...props}
