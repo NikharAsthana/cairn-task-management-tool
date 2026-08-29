@@ -18,10 +18,6 @@ interface TaskColumnProps {
   tasks: Task[];
 }
 
-// The container's own "show" transition defines staggerChildren — each
-// child (see DraggableTaskCard's matching "hidden"/"show" variant names)
-// picks that timing up automatically from this parent, no per-card
-// delay math needed.
 const listVariants = {
   hidden: {},
   show: {
@@ -33,15 +29,29 @@ export function TaskColumn({ title, status, tasks }: TaskColumnProps) {
   const { setNodeRef, isOver } = useDroppable({ id: status });
 
   return (
-    <div className="flex w-72 shrink-0 flex-col gap-3">
+    <div className="flex w-72 shrink-0 snap-start flex-col gap-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
+          {/* GripVertical: purely decorative here — not an interactive
+              drag handle (column reordering isn't implemented), just
+              visual next to the visible column title. No aria treatment
+              needed since it's not actionable and sits beside real text. */}
           <GripVertical className="h-4 w-4 text-muted-foreground" />
           <span className="text-sm font-medium text-foreground">{title}</span>
         </div>
         <div className="flex items-center gap-1 text-muted-foreground">
           <AddTaskDialog defaultStatus={status} />
-          <button type="button" className="rounded p-1 hover:bg-accent" disabled>
+          {/* aria-label added even though this button is disabled — it's
+              a real placeholder for a future column-actions menu (per the
+              deviations list), and labeling it now means it's already
+              correct the moment it gets wired up, instead of being
+              another thing to remember later. */}
+          <button
+            type="button"
+            aria-label="More options"
+            className="rounded p-1 hover:bg-accent"
+            disabled
+          >
             <MoreHorizontal className="h-4 w-4" />
           </button>
         </div>

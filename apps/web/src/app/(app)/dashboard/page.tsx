@@ -80,11 +80,31 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="flex h-screen flex-col bg-background p-6">
+    <div className="flex h-full flex-col bg-background p-4 sm:p-6">
       <h1 className="mb-6 text-lg font-semibold text-card-foreground">Tasks</h1>
 
-      <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-        <div className="flex flex-1 gap-4 overflow-x-auto">
+      <DndContext
+        sensors={sensors}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+        // dnd-kit's default threshold (0.2 = 20% of the scrollable
+        // container's width from each edge) assumes a wide desktop board.
+        // At a 375px viewport with ~1.3 columns visible, 20% is most of
+        // the visible screen, so autoscroll hit max speed almost
+        // instantly and blew straight past the middle columns.
+        // 0.08 shrinks that hot zone to right at the true edge, so you
+        // have to actually drag near the boundary before it kicks in.
+        // acceleration is dnd-kit's default (10) roughly halved, for a
+        // slower ramp once it does start — trades top speed for control.
+        // y: 0 disables vertical autoscroll entirely: this board only
+        // scrolls horizontally, so a drag has no reason to also trigger
+        // page-level vertical scrolling.
+        autoScroll={{
+          threshold: { x: 0.08, y: 0 },
+          acceleration: 4,
+        }}
+      >
+        <div className="flex flex-1 gap-4 overflow-x-auto snap-x snap-mandatory">
           {COLUMNS.map(({ status, label }) => (
             <TaskColumn
               key={status}

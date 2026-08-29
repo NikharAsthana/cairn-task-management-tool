@@ -43,8 +43,11 @@ export default function TaskDetailPage() {
   const updateTask = useUpdateTask(taskId);
 
   if (isLoading) {
+    // min-h-full (not min-h-screen): same fix as the main content below —
+    // min-h-screen ignores the 56px mobile header eaten out of the
+    // viewport by (app)/layout.tsx and overshoots by that much.
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
+      <div className="flex min-h-full items-center justify-center bg-background">
         <p className="text-sm text-muted-foreground">Loading task…</p>
       </div>
     );
@@ -52,7 +55,7 @@ export default function TaskDetailPage() {
 
   if (isError || !task) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
+      <div className="flex min-h-full items-center justify-center bg-background">
         <p className="text-sm text-destructive">
           Couldn&apos;t load this task. It may not exist, or you may not have access.
         </p>
@@ -61,8 +64,19 @@ export default function TaskDetailPage() {
   }
 
   return (
-    <div className="flex h-screen bg-background">
-      <div className="flex-1 overflow-y-auto p-8">
+    // Mobile (below lg): flex-col, single continuous scroll for the whole
+    // page — content and the Details panel stack as one vertical flow.
+    // Desktop (lg+): flex-row, back to the original side-by-side layout,
+    // overflow-hidden so only the inner panels scroll independently.
+    // h-full (not h-screen): fills whatever height (app)/layout.tsx's
+    // <main> actually gives it, correctly accounting for the mobile
+    // header's 56px — same reasoning as the dashboard page fix.
+    <div className="flex h-full flex-col overflow-y-auto bg-background lg:flex-row lg:overflow-hidden">
+      {/* p-4 on mobile, back to the original p-8 at lg+. overflow-y-auto
+          only applies at lg+ now — on mobile the *whole page* scrolls
+          together (see the root div above), so this panel scrolling
+          independently too would just create a confusing nested scrollbar. */}
+      <div className="flex-1 p-4 lg:overflow-y-auto lg:p-8">
         <h1 className="mb-4 text-2xl font-semibold text-card-foreground">
           {task.title}
         </h1>
@@ -97,7 +111,12 @@ export default function TaskDetailPage() {
             against real data without another backend change first. */}
       </div>
 
-      <aside className="w-80 shrink-0 border-l border-border p-6">
+      {/* w-full on mobile (full-width section below content), lg:w-80
+          restores the original fixed 320px side panel. border-t on
+          mobile (it's now a divider above this section); lg:border-t-0
+          lg:border-l swaps that to the original left-edge divider once
+          it's a side panel again. */}
+      <aside className="w-full border-t border-border p-4 lg:w-80 lg:shrink-0 lg:border-t-0 lg:border-l lg:p-6">
         <h2 className="mb-4 text-sm font-medium text-foreground">Details</h2>
 
         <div className="flex flex-col gap-4 text-sm">
