@@ -13,13 +13,17 @@ This project is **in progress**, not a finished submission. Current state:
 | Area | Status |
 |---|---|
 | Login screen (Guest + Google OAuth) | ✅ Done, tested end-to-end |
-| App sidebar shell | ✅ Done |
+| App sidebar shell (incl. mobile nav drawer) | ✅ Done |
 | Theming — light/dark + persistence | ✅ Done |
 | 6-accent color mode | ✅ Done |
 | Backend (auth, Task/Project CRUD, validation, Swagger docs) | ✅ Done |
-| Tasks screen (list view) | ⏳ In progress |
-| Responsive pass (mobile/tablet) | ❌ Not started |
-| Task Detail / Project Detail / Settings | ⏳ Stub pages planned, not full implementations |
+| Tasks screen (Kanban board, drag-and-drop) | ✅ Done |
+| Projects screen (list view) | ✅ Done |
+| Task Detail | ✅ Done — a few fields (description editing, subtasks, comments) intentionally deferred, see below |
+| Project Detail | ✅ Done |
+| Settings | ✅ Done — avatar upload and email editing intentionally deferred, see below |
+| Responsive pass (mobile/tablet) | ✅ Done |
+| Tests & CI | ❌ Not started |
 
 See [Known limitations](#known-limitations--roadmap) below for the honest, current-as-of-now picture.
 
