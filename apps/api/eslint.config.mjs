@@ -23,7 +23,6 @@ export default tseslint.config(
           allowDefaultProject: [
             'prisma.config.cts',
             'prisma/seed.ts',
-            'test/*.ts',
           ],
         },
         tsconfigRootDir: import.meta.dirname,
