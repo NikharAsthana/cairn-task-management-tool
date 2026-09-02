@@ -5,6 +5,7 @@ A task management app with full light/dark theming plus 6 selectable accent colo
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 [![Live: Frontend](https://img.shields.io/badge/demo-vercel-black)](https://cairn-task-management-tool.vercel.app)
 [![Live: API](https://img.shields.io/badge/api-render-46E3B7)](https://cairn-task-management-tool-api.onrender.com)
+[![CI](https://github.com/NikharAsthana/cairn-task-management-tool/actions/workflows/ci.yml/badge.svg)](https://github.com/NikharAsthana/cairn-task-management-tool/actions/workflows/ci.yml)
 
 ## 🚧 Project status
 

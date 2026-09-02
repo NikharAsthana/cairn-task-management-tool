@@ -1,0 +1,108 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  api:
+    name: API
+    runs-on: ubuntu-latest
+
+    # A "service container" is a second, disposable Docker container that
+    # Actions starts alongside the one running these steps — here, a bare
+    # Postgres instance with nothing in it. It's provisioned fresh and torn
+    # down automatically at the end of the job, so every CI run starts from
+    # an identical, empty database. Values below deliberately match your
+    # committed apps/api/.env.test exactly, so the same dotenv-cli-driven
+    # scripts you already run locally work here completely unchanged.
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: cairn_test
+        ports:
+          - 5433:5432
+        # Actions would otherwise move on to the next step the instant the
+        # container process starts, which can be before Postgres has
+        # actually finished initializing inside it. This makes the job wait
+        # until pg_isready genuinely succeeds, avoiding a flaky
+        # "connection refused" on the very first request.
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.20.0
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      # --frozen-lockfile means "install exactly what pnpm-lock.yaml says,
+      # and fail instead of silently rewriting it" — catches the case where
+      # someone changed a package.json without committing the resulting
+      # lockfile update. This step also triggers apps/api's existing
+      # "postinstall": "prisma generate" automatically, so no separate
+      # Prisma step is needed.
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm --filter api run lint:ci
+
+      - name: Typecheck
+        run: pnpm --filter api run typecheck
+
+      - name: Unit tests
+        run: pnpm --filter api run test
+
+      - name: Apply migrations to the test database
+        run: pnpm --filter api run test:e2e:migrate
+
+      - name: e2e tests
+        run: pnpm --filter api run test:e2e
+
+      - name: Build
+        run: pnpm --filter api run build
+
+  web:
+    name: Web
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.20.0
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm --filter web run lint
+
+      - name: Typecheck
+        run: pnpm --filter web run typecheck
+
+      - name: Build
+        run: pnpm --filter web run build
