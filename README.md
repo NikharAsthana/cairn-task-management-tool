@@ -24,7 +24,7 @@ This project is being continously updated. Current state:
 | Project Detail | ✅ Done |
 | Settings | ✅ Done — avatar upload and email editing intentionally deferred, see below |
 | Responsive pass (mobile/tablet) | ✅ Done |
-| Tests & CI | ❌ Not started |
+| Tests & CI | ✅ Done  |
 
 See [Known limitations](#known-limitations--roadmap) below for the honest, current-as-of-now picture.
 
