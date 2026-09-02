@@ -1,29 +1,28 @@
-import { Test, TestingModule } from '@nestjs/testing';
+// apps/api/test/app.e2e-spec.ts
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
-import { AppModule } from './../src/app.module';
+import { createTestApp } from './utils/test-app';
 
-describe('AppController (e2e)', () => {
+interface HealthResponse {
+  status: string;
+  timestamp: string;
+}
+
+describe('App (e2e)', () => {
   let app: INestApplication<App>;
 
-  beforeEach(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
-
-    app = moduleFixture.createNestApplication();
-    await app.init();
+  beforeAll(async () => {
+    app = await createTestApp();
   });
 
-  it('/ (GET)', () => {
-    return request(app.getHttpServer())
-      .get('/')
-      .expect(200)
-      .expect('Hello World!');
-  });
-
-  afterEach(async () => {
+  afterAll(async () => {
     await app.close();
+  });
+
+  it('/health (GET) confirms the app booted and is responding', async () => {
+    const res = await request(app.getHttpServer()).get('/health').expect(200);
+    const body = res.body as HealthResponse;
+    expect(body.status).toBe('ok');
   });
 });
