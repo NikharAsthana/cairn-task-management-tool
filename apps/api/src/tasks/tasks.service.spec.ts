@@ -17,6 +17,42 @@ describe('TasksService', () => {
   const workspaceId = 'workspace-1';
   const projectId = 'project-1';
 
+  // Same reasoning as projects.service.spec.ts's fakeLead — already
+  // shaped exactly like TasksService's private toPublicUser() output.
+  const fakeReporter = {
+    id: userId,
+    fullName: 'Test User',
+    username: 'test-user',
+    isGuest: true,
+    avatarUrl: null,
+    title: null,
+  };
+
+  // A realistic stand-in for what Prisma returns once the service's
+  // `include: { assignees: {...}, labels: {...}, reporter: true }` is in
+  // play. The old fixtures here were bare { id, title } objects, which
+  // crashed once the service started reading task.reporter.id — added
+  // when TaskResponseDto grew reporter/assignees/labels back in Phase 8,
+  // without these tests being updated to match.
+  function buildRawTask(overrides: Record<string, unknown> = {}) {
+    return {
+      id: 'task-1',
+      title: 'Do the thing',
+      status: TaskStatus.TODO,
+      priority: 'NO_PRIORITY',
+      dueDate: null,
+      projectId,
+      parentTaskId: null,
+      reporterId: userId,
+      createdAt: new Date('2026-01-01'),
+      updatedAt: new Date('2026-01-01'),
+      reporter: fakeReporter,
+      assignees: [],
+      labels: [],
+      ...overrides,
+    };
+  }
+
   beforeEach(async () => {
     prisma = {
       project: { findFirst: jest.fn() },
@@ -47,7 +83,7 @@ describe('TasksService', () => {
   describe('create', () => {
     it('creates the task, deriving reporterId server-side, when the project is owned', async () => {
       prisma.project.findFirst.mockResolvedValue({ id: projectId });
-      const created = { id: 'task-1', title: 'Do the thing' };
+      const created = buildRawTask({ title: 'Do the thing' });
       prisma.task.create.mockResolvedValue(created);
 
       const result = await service.create(userId, {
@@ -66,8 +102,13 @@ describe('TasksService', () => {
           projectId,
           reporterId: userId,
         }),
+        include: {
+          assignees: { include: { user: true } },
+          labels: { include: { label: true } },
+          reporter: true,
+        },
       });
-      expect(result).toBe(created);
+      expect(result).toEqual(created);
     });
 
     it('throws NotFoundException and never writes, when the project belongs to another workspace', async () => {
@@ -83,7 +124,10 @@ describe('TasksService', () => {
 
   describe('findAllForUser', () => {
     it('returns paginated data plus a total count', async () => {
-      const tasks = [{ id: 'task-1' }, { id: 'task-2' }];
+      const tasks = [
+        buildRawTask({ id: 'task-1' }),
+        buildRawTask({ id: 'task-2' }),
+      ];
       prisma.task.findMany.mockResolvedValue(tasks);
       prisma.task.count.mockResolvedValue(2);
 
@@ -135,7 +179,7 @@ describe('TasksService', () => {
 
   describe('remove', () => {
     it('checks ownership before deleting', async () => {
-      prisma.task.findFirst.mockResolvedValue({ id: 'task-1' });
+      prisma.task.findFirst.mockResolvedValue(buildRawTask({ id: 'task-1' }));
       prisma.task.delete.mockResolvedValue(undefined);
 
       await service.remove(userId, 'task-1');
