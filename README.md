@@ -8,7 +8,7 @@ A task management app with full light/dark theming plus 6 selectable accent colo
 
 ## 🚧 Project status
 
-This project is **in progress**, not a finished submission. Current state:
+This project is being continously updated. Current state:
 
 | Area | Status |
 |---|---|
