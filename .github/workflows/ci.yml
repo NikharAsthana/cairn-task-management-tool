@@ -9,13 +9,16 @@ jobs:
     name: API
     runs-on: ubuntu-latest
 
-    # A "service container" is a second, disposable Docker container that
-    # Actions starts alongside the one running these steps — here, a bare
-    # Postgres instance with nothing in it. It's provisioned fresh and torn
-    # down automatically at the end of the job, so every CI run starts from
-    # an identical, empty database. Values below deliberately match your
-    # committed apps/api/.env.test exactly, so the same dotenv-cli-driven
-    # scripts you already run locally work here completely unchanged.
+    env:
+      # A workspace-wide `pnpm install` triggers every package's postinstall
+      # script, including this one's `prisma generate` — before .env.test
+      # gets explicitly loaded by any later step. Prisma's config loader
+      # throws immediately if DATABASE_URL is unresolved at all, even
+      # though `generate` itself never actually connects to a database — it
+      # only needs the value to exist. This matches .env.test exactly, so
+      # it's restating the same non-secret value, not introducing a second one.
+      DATABASE_URL: postgresql://postgres:test@localhost:5433/cairn_test
+
     services:
       postgres:
         image: postgres:17
@@ -24,11 +27,6 @@ jobs:
           POSTGRES_DB: cairn_test
         ports:
           - 5433:5432
-        # Actions would otherwise move on to the next step the instant the
-        # container process starts, which can be before Postgres has
-        # actually finished initializing inside it. This makes the job wait
-        # until pg_isready genuinely succeeds, avoiding a flaky
-        # "connection refused" on the very first request.
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -50,12 +48,6 @@ jobs:
           node-version: 24
           cache: pnpm
 
-      # --frozen-lockfile means "install exactly what pnpm-lock.yaml says,
-      # and fail instead of silently rewriting it" — catches the case where
-      # someone changed a package.json without committing the resulting
-      # lockfile update. This step also triggers apps/api's existing
-      # "postinstall": "prisma generate" automatically, so no separate
-      # Prisma step is needed.
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
@@ -95,8 +87,12 @@ jobs:
           node-version: 24
           cache: pnpm
 
+      # Scoped to just `web`'s own dependency graph — unlike the api job,
+      # this deliberately never installs apps/api at all, so its
+      # postinstall (prisma generate, which needs DATABASE_URL) never runs
+      # here in the first place. Nothing to fake a value for.
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm --filter web install --frozen-lockfile
 
       - name: Lint
         run: pnpm --filter web run lint
@@ -106,3 +102,4 @@ jobs:
 
       - name: Build
         run: pnpm --filter web run build
+        
