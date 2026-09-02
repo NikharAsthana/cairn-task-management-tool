@@ -1,5 +1,7 @@
 "pnpm --filter api start:dev" for server
 "pnpm --filter web dev" for frontend
+"docker run --rm -d --name cairn-test-db -p 5433:5432 -e POSTGRES_PASSWORD=test -e POSTGRES_DB=cairn_test postgres:17" 
+for testing.
 
 
 - setup nestjs scaffolding
@@ -21,5 +23,4 @@
 
 
 
-question: should i include the generated directory in gitignore or not? the deploy breaks if i do.
 
