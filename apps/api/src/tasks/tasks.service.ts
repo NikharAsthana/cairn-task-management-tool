@@ -21,6 +21,7 @@ interface TaskUser {
 interface TaskWithRelations {
   id: string;
   title: string;
+  description: string | null;
   status: TaskStatus;
   priority: Priority;
   dueDate: Date | null;
@@ -55,6 +56,7 @@ export class TasksService {
     const task = await this.prisma.task.create({
       data: {
         title: dto.title,
+        description: dto.description,
         status: dto.status,
         priority: dto.priority,
         dueDate: dto.dueDate ? new Date(dto.dueDate) : undefined,
@@ -146,6 +148,7 @@ export class TasksService {
     return {
       id: task.id,
       title: task.title,
+      description: task.description,
       status: task.status,
       priority: task.priority,
       dueDate: task.dueDate,

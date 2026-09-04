@@ -238,6 +238,7 @@ export interface components {
             dueDate?: string;
             /** Format: uuid */
             parentTaskId?: string;
+            description?: string;
         };
         LabelDto: {
             /** Format: uuid */
@@ -249,6 +250,7 @@ export interface components {
             /** Format: uuid */
             id: string;
             title: string;
+            description: string | null;
             /** @enum {string} */
             status: "BACKLOG" | "TODO" | "IN_PROGRESS" | "ON_HOLD" | "DONE";
             /** @enum {string} */
@@ -298,6 +300,7 @@ export interface components {
             dueDate?: string;
             /** Format: uuid */
             parentTaskId?: string;
+            description?: string;
         };
         UpdateUserDto: {
             /** @example Dexter */

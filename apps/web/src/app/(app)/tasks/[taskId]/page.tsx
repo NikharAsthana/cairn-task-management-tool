@@ -2,9 +2,10 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { Calendar, Paperclip, Tag } from "lucide-react";
+import { Calendar, Tag } from "lucide-react";
 import { PriorityBadge } from "@/components/shared/priority-badge";
 import { StatusBadge } from "@/components/shared/status-badge";
+import { TaskDescription } from "@/components/shared/task-description";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
   Select,
@@ -43,9 +44,6 @@ export default function TaskDetailPage() {
   const updateTask = useUpdateTask(taskId);
 
   if (isLoading) {
-    // min-h-full (not min-h-screen): same fix as the main content below —
-    // min-h-screen ignores the 56px mobile header eaten out of the
-    // viewport by (app)/layout.tsx and overshoots by that much.
     return (
       <div className="flex min-h-full items-center justify-center bg-background">
         <p className="text-sm text-muted-foreground">Loading task…</p>
@@ -64,26 +62,17 @@ export default function TaskDetailPage() {
   }
 
   return (
-    // Mobile (below lg): flex-col, single continuous scroll for the whole
-    // page — content and the Details panel stack as one vertical flow.
-    // Desktop (lg+): flex-row, back to the original side-by-side layout,
-    // overflow-hidden so only the inner panels scroll independently.
-    // h-full (not h-screen): fills whatever height (app)/layout.tsx's
-    // <main> actually gives it, correctly accounting for the mobile
-    // header's 56px — same reasoning as the dashboard page fix.
     <div className="flex h-full flex-col overflow-y-auto bg-background lg:flex-row lg:overflow-hidden">
-      {/* p-4 on mobile, back to the original p-8 at lg+. overflow-y-auto
-          only applies at lg+ now — on mobile the *whole page* scrolls
-          together (see the root div above), so this panel scrolling
-          independently too would just create a confusing nested scrollbar. */}
       <div className="flex-1 p-4 lg:overflow-y-auto lg:p-8">
         <h1 className="mb-4 text-2xl font-semibold text-card-foreground">
           {task.title}
         </h1>
 
-        {/* Description intentionally omitted — Task doesn't have a
-            description field yet. Real, small migration if you want it
-            (see chat); not blocking. */}
+        <TaskDescription
+          value={task.description}
+          onSave={(next) => updateTask.mutate({ description: next })}
+          disabled={updateTask.isPending}
+        />
 
         {task.labels.length > 0 && (
           <div className="mb-6 flex flex-wrap gap-1.5">
@@ -99,23 +88,11 @@ export default function TaskDetailPage() {
           </div>
         )}
 
-        <div className="mb-6 flex items-center gap-2 text-sm text-muted-foreground">
-          <Paperclip className="h-4 w-4" />
-          {/* Static — no attach-document functionality built, matches
-              current real scope, not wired to anything. */}
-          Add document or link…
-        </div>
-
         {/* Subtasks table deferred — the API doesn't support filtering
             tasks by parentTaskId yet (see chat), so this can't be built
             against real data without another backend change first. */}
       </div>
 
-      {/* w-full on mobile (full-width section below content), lg:w-80
-          restores the original fixed 320px side panel. border-t on
-          mobile (it's now a divider above this section); lg:border-t-0
-          lg:border-l swaps that to the original left-edge divider once
-          it's a side panel again. */}
       <aside className="w-full border-t border-border p-4 lg:w-80 lg:shrink-0 lg:border-t-0 lg:border-l lg:p-6">
         <h2 className="mb-4 text-sm font-medium text-foreground">Details</h2>
 
@@ -178,8 +155,6 @@ export default function TaskDetailPage() {
                 ))}
               </div>
             ) : (
-              // Read-only — assigning members needs UpdateTaskDto to
-              // accept assigneeIds, which it doesn't yet.
               <span className="text-muted-foreground">—</span>
             )}
           </div>

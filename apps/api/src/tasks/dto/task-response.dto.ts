@@ -21,6 +21,9 @@ export class TaskResponseDto {
   @ApiProperty()
   title!: string;
 
+  @ApiProperty({ type: String, nullable: true })
+  description!: string | null;
+
   @ApiProperty({ enum: TaskStatus })
   status!: TaskStatus;
 

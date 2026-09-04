@@ -45,4 +45,16 @@ export class CreateTaskDto {
   @IsOptional()
   @IsUUID()
   parentTaskId?: string;
+
+  // Freeform notes/links, stored and returned as raw markdown text — the
+  // backend never parses or understands the content, only caps its size.
+  // The frontend (TaskDescription component) renders it. 2000 chars is
+  // roughly 3-4 paragraphs. There's no shared constant between the two
+  // apps, so if this cap ever changes, update MAX_LENGTH in
+  // apps/web/src/components/shared/task-description.tsx by hand too.
+  @ApiPropertyOptional({ maxLength: 2000 })
+  @IsOptional()
+  @IsString()
+  @MaxLength(2000)
+  description?: string;
 }
