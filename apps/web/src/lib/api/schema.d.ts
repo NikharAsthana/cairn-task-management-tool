@@ -113,10 +113,12 @@ export interface paths {
         get: operations["ProjectsController_findOne"];
         put?: never;
         post?: never;
-        delete?: never;
+        /** Delete a project (fails if it still has tasks) */
+        delete: operations["ProjectsController_remove"];
         options?: never;
         head?: never;
-        patch?: never;
+        /** Update a project */
+        patch: operations["ProjectsController_update"];
         trace?: never;
     };
     "/tasks": {
@@ -215,6 +217,20 @@ export interface components {
             createdAt: string;
             /** Format: date-time */
             updatedAt: string;
+        };
+        UpdateProjectDto: {
+            /** @example Website Redesign */
+            name?: string;
+            /**
+             * @default NO_PRIORITY
+             * @enum {string}
+             */
+            priority?: "NO_PRIORITY" | "LOW" | "MEDIUM" | "HIGH" | "URGENT";
+            /**
+             * Format: date-time
+             * @example 2026-09-01
+             */
+            dueDate?: string;
         };
         CreateTaskDto: {
             /** @example Set up CI pipeline */
@@ -461,6 +477,72 @@ export interface operations {
             cookie?: never;
         };
         requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectResponseDto"];
+                };
+            };
+            /** @description Project not found or not owned by caller */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ProjectsController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Project deleted */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Project not found or not owned by caller */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Project still has tasks — delete or reassign them first */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ProjectsController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateProjectDto"];
+            };
+        };
         responses: {
             200: {
                 headers: {
