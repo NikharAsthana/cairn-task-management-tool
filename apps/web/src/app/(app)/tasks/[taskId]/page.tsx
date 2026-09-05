@@ -1,12 +1,15 @@
 // apps/web/src/app/(app)/tasks/[taskId]/page.tsx
 "use client";
 
-import { useParams } from "next/navigation";
-import { Calendar, Tag } from "lucide-react";
+import { useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { Calendar, Tag, Trash2 } from "lucide-react";
 import { PriorityBadge } from "@/components/shared/priority-badge";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { TaskDescription } from "@/components/shared/task-description";
+import { DeleteTaskDialog } from "@/components/shared/delete-task-dialog";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -40,8 +43,10 @@ const STATUS_OPTIONS: { value: TaskStatus; label: string }[] = [
 
 export default function TaskDetailPage() {
   const { taskId } = useParams<{ taskId: string }>();
+  const router = useRouter();
   const { data: task, isLoading, isError } = useTask(taskId);
   const updateTask = useUpdateTask(taskId);
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   if (isLoading) {
     return (
@@ -190,12 +195,33 @@ export default function TaskDetailPage() {
           </div>
         </div>
 
+        {/* Divider + destructive action set apart from the field list
+            above deliberately — grouping "delete" visually with
+            "priority" invites a misclick on a destructive action. */}
+        <div className="mt-6 border-t border-border pt-4">
+          <Button
+            variant="ghost"
+            onClick={() => setDeleteOpen(true)}
+            className="w-full justify-start gap-2 text-destructive hover:bg-destructive/10 hover:text-destructive"
+          >
+            <Trash2 className="h-4 w-4" />
+            Delete task
+          </Button>
+        </div>
+
         {updateTask.isError && (
           <p className="mt-4 text-xs text-destructive" role="alert">
             Couldn&apos;t save that change. Please try again.
           </p>
         )}
       </aside>
+
+      <DeleteTaskDialog
+        task={task}
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        onDeleted={() => router.push(`/projects/${task.projectId}`)}
+      />
     </div>
   );
 }
