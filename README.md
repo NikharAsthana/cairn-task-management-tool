@@ -169,7 +169,7 @@ pnpm --filter api test:e2e
 
 ## Known limitations / roadmap
 
-- **Task Detail** doesn't yet support editing the description, viewing subtasks, or commenting — the schema supports description editing (migration applied), the rest would need new endpoints and UI.
+- **Task Detail** doesn't yet support viewing subtasks or commenting — the schema supports description editing (migration applied), the rest would need new endpoints and UI.
 - **No UI to assign tasks or attach labels** — both are currently display-only.
 - **Settings**: avatar upload and email address are not yet editable.
 - **List/Board view toggle** on the Tasks screen isn't built — Board view only.
@@ -177,6 +177,7 @@ pnpm --filter api test:e2e
 - **Theme sync across devices**: theme and accent color are `localStorage`-only, not yet persisted server-side, despite the schema already supporting it.
 - **Keyboard drag-and-drop** has no live-region announcements for screen readers during pickup/move/drop.
 - **WCAG AA contrast**: several Figma-confirmed accent and priority colors fail AA in specific roles — documented, fixes deliberately deferred (see Design deviations above).
+- **Known latency cause**: Render (Oregon) and Neon (Singapore) are in different regions, adding noticeable per-request latency.
 
 ## License
 
