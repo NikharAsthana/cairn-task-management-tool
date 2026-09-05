@@ -1,14 +1,27 @@
 // apps/api/src/auth/auth.controller.ts
-import { Controller, Post, Get, UseGuards, Req, Res } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Body,
+  UseGuards,
+  Req,
+  Res,
+} from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { AuthGuard } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
-import { ApiCreatedResponse, ApiOkResponse } from '@nestjs/swagger';
+import {
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiResponse,
+} from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { PrismaService } from '../prisma/prisma.service';
 import type { GoogleProfile } from './strategies/google.strategy';
 import { PublicUserDto } from './dto/public-user.dto';
+import { ExchangeTokenDto } from './dto/exchange-token.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -29,9 +42,7 @@ export class AuthController {
   @Get('google')
   @UseGuards(AuthGuard('google'))
   googleLogin() {
-    // Passport intercepts the request before this body ever runs — it
-    // redirects the browser straight to Google's sign-in page. This method
-    // exists only so Nest has a route to attach the guard to.
+    // Passport intercepts the request before this body ever runs.
   }
 
   @Get('google/callback')
@@ -41,8 +52,40 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const user = await this.authService.findOrCreateGoogleUser(req.user);
+
+    // Deliberately NOT setting the session cookie here — see the long
+    // comment on issueExchangeToken() in auth.service.ts for why. Short
+    // version: this callback is the last hop of a cross-site redirect
+    // chain, and Brave/Firefox silently discard cookies set at exactly
+    // that point. Instead, hand off a short-lived token and let the
+    // frontend spend it via a normal fetch() once it's back on its own
+    // domain, which is invisible to that protection.
+    const exchangeToken = this.authService.issueExchangeToken(user.id);
+    const frontendUrl = this.config.getOrThrow<string>('FRONTEND_URL');
+    res.redirect(
+      `${frontendUrl}/auth/callback?token=${encodeURIComponent(exchangeToken)}`,
+    );
+  }
+
+  @Post('exchange')
+  @ApiCreatedResponse({
+    type: PublicUserDto,
+    description: 'Session cookie set',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Invalid or expired exchange token',
+  })
+  async exchange(
+    @Body() dto: ExchangeTokenDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const userId = this.authService.verifyExchangeToken(dto.token);
+    const user = await this.prisma.user.findUniqueOrThrow({
+      where: { id: userId },
+    });
     this.setAuthCookie(res, user.id);
-    res.redirect(`${this.config.getOrThrow<string>('FRONTEND_URL')}/dashboard`);
+    return this.publicUser(user);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -63,7 +106,7 @@ export class AuthController {
       httpOnly: true,
       secure: isProd,
       sameSite: isProd ? 'none' : 'lax',
-      maxAge: this.config.getOrThrow<number>('JWT_EXPIRES_IN') * 1000, // seconds -> ms
+      maxAge: this.config.getOrThrow<number>('JWT_EXPIRES_IN') * 1000,
       path: '/',
     });
   }

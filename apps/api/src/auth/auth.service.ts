@@ -1,5 +1,5 @@
 // apps/api/src/auth/auth.service.ts
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -41,9 +41,6 @@ export class AuthService {
   async createGuestUser() {
     const displayName = randomGuestName();
 
-    // Nested create: Prisma creates the Workspace and the User that points at
-    // it in one atomic write. Adjust the relation field name below (`workspace`)
-    // if yours is spelled differently in schema.prisma.
     return this.prisma.user.create({
       data: {
         fullName: displayName,
@@ -62,6 +59,41 @@ export class AuthService {
     // the user gets looked up fresh from the DB via /auth/me, never trusted
     // blindly from an old token.
     return this.jwt.sign({ sub: userId });
+  }
+
+  // Issues a short-lived (60s), single-purpose token used ONLY to carry
+  // "this user just authenticated with Google" across one redirect hop, from
+  // the OAuth callback (on our API's domain) to a page on our frontend's own
+  // domain — never set as a cookie itself. This exists because Brave/Firefox's
+  // bounce-tracking protections silently discard cookies set mid-redirect-chain
+  // (site A -> our API -> Google -> our API again -> site A), even when
+  // legitimate. Spending this token via POST /auth/exchange happens from a
+  // plain fetch() on a page the user is genuinely on — the same mechanism
+  // guest login already uses successfully — which isn't part of any redirect
+  // chain and so isn't caught by that protection.
+  //
+  // The `purpose` claim is what makes this safe to put in a URL at all: even
+  // if it leaked (e.g. sitting briefly in browser history), JwtStrategy
+  // explicitly refuses any token carrying that claim, so it can never be
+  // replayed as a real session credential — only spent once, here.
+  issueExchangeToken(userId: string): string {
+    return this.jwt.sign(
+      { sub: userId, purpose: 'oauth_exchange' },
+      { expiresIn: 60 },
+    );
+  }
+
+  verifyExchangeToken(token: string): string {
+    let payload: { sub: string; purpose?: string };
+    try {
+      payload = this.jwt.verify<{ sub: string; purpose?: string }>(token);
+    } catch {
+      throw new UnauthorizedException('Invalid or expired token');
+    }
+    if (payload.purpose !== 'oauth_exchange') {
+      throw new UnauthorizedException('Invalid token');
+    }
+    return payload.sub;
   }
 
   async findOrCreateGoogleUser(profile: {
@@ -92,10 +124,6 @@ export class AuthService {
     });
   }
 
-  // Guest usernames (adjective-animal-number) are virtually collision-free by
-  // construction. Real names aren't — two different Google accounts can both
-  // be "John Smith" — so this checks the database and appends a number until
-  // it finds one that's free, instead of assuming a slugified name is safe.
   private async generateUniqueUsername(fullName: string): Promise<string> {
     const base = fullName.toLowerCase().trim().replace(/\s+/g, '-');
     let candidate = base;
