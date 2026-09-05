@@ -1,7 +1,12 @@
 // apps/api/src/projects/projects.service.ts
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateProjectDto } from './dto/create-project.dto';
+import { UpdateProjectDto } from './dto/update-project.dto';
 import { WorkspaceContextService } from '../common/workspace-context/workspace-context.service';
 import type { Priority } from '../generated/prisma/enums';
 import type { PublicUserDto } from '../auth/dto/public-user.dto';
@@ -71,6 +76,60 @@ export class ProjectsService {
     }
 
     return this.toResponseShape(project);
+  }
+
+  async update(userId: string, projectId: string, dto: UpdateProjectDto) {
+    const workspaceId = await this.workspaceContext.getWorkspaceId(userId);
+
+    // findFirst scoped to workspaceId doubles as "does this exist" AND
+    // "does the caller actually own it" in one query — same pattern as
+    // findOneForUser. A project in a different workspace 404s instead of
+    // leaking a 403; you don't confirm the existence of things a caller
+    // can't access.
+    const existing = await this.prisma.project.findFirst({
+      where: { id: projectId, workspaceId },
+    });
+    if (!existing) {
+      throw new NotFoundException('Project not found');
+    }
+
+    const project = await this.prisma.project.update({
+      where: { id: projectId },
+      data: {
+        name: dto.name,
+        priority: dto.priority,
+        dueDate: dto.dueDate ? new Date(dto.dueDate) : undefined,
+      },
+      include: { lead: true },
+    });
+
+    return this.toResponseShape(project);
+  }
+
+  async remove(userId: string, projectId: string) {
+    const workspaceId = await this.workspaceContext.getWorkspaceId(userId);
+
+    const existing = await this.prisma.project.findFirst({
+      where: { id: projectId, workspaceId },
+      include: { _count: { select: { tasks: true } } },
+    });
+    if (!existing) {
+      throw new NotFoundException('Project not found');
+    }
+
+    // Deliberately blocking rather than cascading: silently deleting
+    // every task in a project alongside it is a much bigger, harder-to-
+    // undo action than a "delete project" button implies, and there's
+    // currently no "move task to another project" flow to escape it with
+    // (UpdateTaskDto explicitly omits projectId). If this should cascade
+    // instead, this is the one method to change.
+    if (existing._count.tasks > 0) {
+      throw new ConflictException(
+        `Cannot delete project: it still has ${existing._count.tasks} task(s). Delete or reassign them first.`,
+      );
+    }
+
+    await this.prisma.project.delete({ where: { id: projectId } });
   }
 
   private toResponseShape(project: ProjectWithLead) {

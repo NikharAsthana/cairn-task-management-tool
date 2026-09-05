@@ -1,11 +1,16 @@
+// apps/api/src/projects/projects.controller.ts
 import {
   Controller,
   Get,
   Post,
+  Patch,
+  Delete,
   Body,
   Param,
   ParseUUIDPipe,
   UseGuards,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -14,11 +19,13 @@ import {
   ApiResponse,
   ApiOkResponse,
   ApiCreatedResponse,
+  ApiNoContentResponse,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { ProjectsService } from './projects.service';
 import { CreateProjectDto } from './dto/create-project.dto';
+import { UpdateProjectDto } from './dto/update-project.dto';
 import { ProjectResponseDto } from './dto/project-response.dto';
 
 @ApiTags('Projects')
@@ -57,5 +64,39 @@ export class ProjectsController {
     @Param('id', ParseUUIDPipe) id: string,
   ) {
     return this.projectsService.findOneForUser(userId, id);
+  }
+
+  @Patch(':id')
+  @ApiOperation({ summary: 'Update a project' })
+  @ApiOkResponse({ type: ProjectResponseDto })
+  @ApiResponse({
+    status: 404,
+    description: 'Project not found or not owned by caller',
+  })
+  update(
+    @CurrentUser() userId: string,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: UpdateProjectDto,
+  ) {
+    return this.projectsService.update(userId, id, dto);
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Delete a project (fails if it still has tasks)' })
+  @ApiNoContentResponse({ description: 'Project deleted' })
+  @ApiResponse({
+    status: 404,
+    description: 'Project not found or not owned by caller',
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'Project still has tasks — delete or reassign them first',
+  })
+  remove(
+    @CurrentUser() userId: string,
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    return this.projectsService.remove(userId, id);
   }
 }
