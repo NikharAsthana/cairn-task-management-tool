@@ -68,6 +68,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/auth/exchange": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AuthController_exchange"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/me": {
         parameters: {
             query?: never;
@@ -185,6 +201,10 @@ export interface components {
             isGuest: boolean;
             avatarUrl: string | null;
             title: string | null;
+        };
+        ExchangeTokenDto: {
+            /** @description Short-lived token issued by the OAuth callback redirect */
+            token: string;
         };
         CreateProjectDto: {
             /** @example Website Redesign */
@@ -398,6 +418,37 @@ export interface operations {
         requestBody?: never;
         responses: {
             200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AuthController_exchange: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExchangeTokenDto"];
+            };
+        };
+        responses: {
+            /** @description Session cookie set */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicUserDto"];
+                };
+            };
+            /** @description Invalid or expired exchange token */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };
