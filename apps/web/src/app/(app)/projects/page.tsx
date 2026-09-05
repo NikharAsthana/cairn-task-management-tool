@@ -4,6 +4,7 @@
 import Link from 'next/link';
 import { PriorityBadge } from '@/components/shared/priority-badge';
 import { AddProjectDialog } from '@/components/shared/add-project-dialog';
+import { ProjectActionsMenu } from '@/components/shared/project-actions-menu';
 import { useProjects } from '@/hooks/use-projects';
 import { formatDueDate } from '@/lib/format-date';
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
@@ -38,17 +39,15 @@ export default function ProjectsPage() {
 
       {/* overflow-x-auto (not overflow-hidden): the previous value
           clipped anything past the container's width with no way to
-          reach it at all — the exact bug you found. overflow-x-auto lets
-          the browser add a horizontal scrollbar/swipe instead, same
-          pattern already used for the Kanban board. */}
+          reach it at all. overflow-x-auto lets the browser add a
+          horizontal scrollbar/swipe instead, same pattern already used
+          for the Kanban board. */}
       <div className="overflow-x-auto rounded-md border border-border">
         {/* min-w-[640px]: without an explicit minimum, a table with
-            "auto" layout will let flexible browsers squash the columns
-            down uncomfortably narrow to force a fit — Lead's avatar +
-            name and Due Date get the worst of it. Setting a floor means
-            the table always renders at a legible width, and lets the
-            wrapper's overflow-x-auto do its job below that width instead
-            of the browser silently cramming content together. */}
+            "auto" layout will squash columns down uncomfortably narrow
+            to force a fit — Lead's avatar + name and Due Date get the
+            worst of it. Setting a floor keeps the table legible and
+            lets overflow-x-auto handle anything below that width. */}
         <table className="w-full min-w-[640px] text-sm">
           <thead>
             <tr className="h-12 bg-muted text-left font-medium text-primary">
@@ -98,7 +97,9 @@ export default function ProjectsPage() {
                 <td className="px-4 text-muted-foreground">
                   {project.dueDate ? formatDueDate(project.dueDate) : '—'}
                 </td>
-                <td className="px-4" />
+                <td className="px-4">
+                  <ProjectActionsMenu project={project} />
+                </td>
               </tr>
             ))}
           </tbody>
