@@ -172,6 +172,7 @@ pnpm --filter api test:e2e
 - **Task Detail** doesn't yet support viewing subtasks or commenting — the schema supports description editing (migration applied), the rest would need new endpoints and UI.
 - **No UI to assign tasks or attach labels** — both are currently display-only.
 - **Settings**: avatar upload and email address are not yet editable.
+- **Kanban column header**: grip icon (would-be drag-to-reorder) and "..." menu (would-be rename/delete) are visible but inert — reordering or renaming columns isn't supported since TaskStatus is a fixed backend enum, not a user-defined, orderable model.
 - **List/Board view toggle** on the Tasks screen isn't built — Board view only.
 - **Search/filter toolbar** on the Tasks screen is visual only, not wired up.
 - **Theme sync across devices**: theme and accent color are `localStorage`-only, not yet persisted server-side, despite the schema already supporting it.
