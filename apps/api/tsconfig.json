@@ -19,6 +19,18 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
+    // Two copies of TypeScript exist in this workspace's node_modules:
+    // 6.0.3 (the root's pinned version, used by tsc directly, ESLint,
+    // Prisma, Jest) and a nested 5.9.3 that pnpm installs specifically for
+    // @nestjs/cli, because @nestjs/cli's own dependency range doesn't yet
+    // allow TypeScript 6.x. This is a real split in the dependency graph,
+    // not a broken install — confirmed via `pnpm why typescript --recursive`.
+    // "6.0" is only a legal value once the compiler running is actually 6.x
+    // (5.9.3 requires "5.0" instead) — so this setting matches the 6.0.3
+    // copy that the day-to-day dev server (`nest start`) actually resolves,
+    // even though a direct `tsc` invocation may briefly disagree. This
+    // should resolve itself once @nestjs/cli ships a release permitting
+    // TypeScript 6.x, collapsing both copies back into one.
     "ignoreDeprecations": "6.0",
     "types": ["node", "jest"]
   },
