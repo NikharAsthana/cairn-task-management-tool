@@ -15,6 +15,7 @@ import {
 import { TaskColumn } from "@/components/shared/task-column";
 import { TaskCard } from "@/components/shared/task-card";
 import { useTasks } from "@/hooks/use-tasks";
+import { useProjects } from "@/hooks/use-projects";
 import { useUpdateTaskStatus } from "@/hooks/use-update-task-status";
 import type { components } from "@/lib/api/schema";
 
@@ -31,8 +32,19 @@ const COLUMN_STATUSES = new Set<string>(COLUMNS.map((c) => c.status));
 
 export default function DashboardPage() {
   const { data, isLoading, isError } = useTasks();
+  const { data: projectsData } = useProjects();
   const updateStatus = useUpdateTaskStatus();
   const [activeId, setActiveId] = useState<string | null>(null);
+
+  // A cheap client-side join: task-list rows only carry projectId, not the
+  // project's name. Projects are a small, already-cached list (this hook
+  // is used elsewhere too), so re-fetching them here is basically free —
+  // cheaper than teaching every task-returning endpoint to embed a full
+  // project object it usually doesn't need. Rebuilt each render, but
+  // useProjects()'s own cache means this doesn't cost a network request.
+  const projectNameById = new Map(
+    (projectsData ?? []).map((project) => [project.id, project.name]),
+  );
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -111,6 +123,7 @@ export default function DashboardPage() {
               title={label}
               status={status}
               tasks={tasks.filter((task) => task.status === status)}
+              projectNameById={projectNameById}
             />
           ))}
         </div>
@@ -118,7 +131,10 @@ export default function DashboardPage() {
         <DragOverlay>
           {activeTask && (
             <div className="w-72 rotate-2 opacity-90 shadow-lg">
-              <TaskCard task={activeTask} />
+              <TaskCard
+                task={activeTask}
+                projectName={projectNameById.get(activeTask.projectId)}
+              />
             </div>
           )}
         </DragOverlay>

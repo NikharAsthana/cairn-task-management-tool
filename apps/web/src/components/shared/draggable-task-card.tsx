@@ -11,6 +11,7 @@ type Task = components["schemas"]["TaskResponseDto"];
 
 interface DraggableTaskCardProps {
   task: Task;
+  projectName?: string;
 }
 
 // Parent-orchestrated stagger variant — see task-column.tsx. This
@@ -21,7 +22,7 @@ const cardVariants = {
   show: { opacity: 1, y: 0 },
 };
 
-export function DraggableTaskCard({ task }: DraggableTaskCardProps) {
+export function DraggableTaskCard({ task, projectName }: DraggableTaskCardProps) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: task.id,
   });
@@ -45,7 +46,7 @@ export function DraggableTaskCard({ task }: DraggableTaskCardProps) {
           reason — drag included, but also a status change from the Task
           Detail page's dropdown. */}
       <motion.div layout variants={cardVariants} transition={{ duration: 0.15 }}>
-        <TaskCard task={task} />
+        <TaskCard task={task} projectName={projectName} />
       </motion.div>
     </div>
   );

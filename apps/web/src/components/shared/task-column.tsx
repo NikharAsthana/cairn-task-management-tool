@@ -16,6 +16,7 @@ interface TaskColumnProps {
   title: string;
   status: TaskStatus;
   tasks: Task[];
+  projectNameById: Map<string, string>;
 }
 
 const listVariants = {
@@ -25,7 +26,7 @@ const listVariants = {
   },
 };
 
-export function TaskColumn({ title, status, tasks }: TaskColumnProps) {
+export function TaskColumn({ title, status, tasks, projectNameById }: TaskColumnProps) {
   const { setNodeRef, isOver } = useDroppable({ id: status });
 
   return (
@@ -72,7 +73,13 @@ export function TaskColumn({ title, status, tasks }: TaskColumnProps) {
             No tasks
           </p>
         ) : (
-          tasks.map((task) => <DraggableTaskCard key={task.id} task={task} />)
+          tasks.map((task) => (
+            <DraggableTaskCard
+              key={task.id}
+              task={task}
+              projectName={projectNameById.get(task.projectId)}
+            />
+          ))
         )}
       </motion.div>
     </div>
