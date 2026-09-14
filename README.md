@@ -152,7 +152,6 @@ pnpm --filter api test:e2e
 - **Dark mode palette**: fully derived from shadcn's standard semantic relationships, not pulled from Figma — the source file's variable-mode switcher isn't accessible under view-only access.
 - **Accent color modes** (Amber/Blue/Pink/Rose/Emerald): hex values confirmed directly from Figma via the Inspect panel. Several fail WCAG AA contrast in specific roles — see the audit note below; fixes were deliberately deferred to preserve Figma fidelity.
 - **"Backlog" status**: exists as a valid value in the data model but is intentionally never rendered as a board column — matches the Figma source exactly.
-- **Project Detail** shows only 3 status groups vs. the main board's 4 (missing "On Hold") — a genuine inconsistency in the Figma source file itself, matched per-screen rather than "corrected."
 - **Login screen copy**: the source file's subtext described an email field that doesn't exist on the screen (only Guest and Google options do). Copy was changed to describe what's actually offered.
 - **Task Detail**: `description` field exists in the schema (migration applied) but isn't wired into the UI yet. Subtasks table, Comments, and Activity Log were cut or deferred — see Known limitations.
 - **"Teams" field** from Task Detail's Figma component inventory: cut entirely, no backing data model.
