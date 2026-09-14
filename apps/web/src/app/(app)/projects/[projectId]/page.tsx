@@ -12,13 +12,18 @@ import type { components } from "@/lib/api/schema";
 
 type TaskStatus = components["schemas"]["TaskResponseDto"]["status"];
 
-// Matches this specific Figma screen exactly — three groups, not the main
-// board's four. This screen's source design never shows an On Hold
-// section, even though the main Tasks board does. Real inconsistency in
-// the source file, documented rather than "fixed" to match the other screen.
+// Previously matched this screen's Figma source exactly (3 groups, no
+// On Hold) even though the source file itself is inconsistent — the main
+// Tasks board shows 4. Reinstated On Hold here: with it hidden, on-hold
+// tasks vanished from view entirely and a project that actually still
+// had tasks in it looked empty, making the backend's "can't delete a
+// non-empty project" conflict look like a bug instead of correct
+// behavior. Functional correctness wins over matching a Figma
+// inconsistency — see README's deviations list, updated accordingly.
 const GROUPS: { status: TaskStatus; label: string }[] = [
   { status: "TODO", label: "To Do" },
   { status: "IN_PROGRESS", label: "Doing" },
+  { status: "ON_HOLD", label: "On Hold" },
   { status: "DONE", label: "Completed" },
 ];
 
