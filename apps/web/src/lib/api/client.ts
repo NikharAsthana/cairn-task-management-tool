@@ -1,3 +1,4 @@
+// apps/web/src/lib/api/client.ts
 import createClient from "openapi-fetch";
 import type { paths } from "./schema";
 
@@ -7,15 +8,18 @@ import type { paths } from "./schema";
 // correct request body shapes, correct response shapes, all derived
 // straight from your NestJS controllers.
 export const apiClient = createClient<paths>({
-  baseUrl: process.env.NEXT_PUBLIC_API_URL,
+  // Relative, not the full Render URL — see next.config.ts's rewrites.
+  // The browser only ever talks to this Next.js app; Next.js proxies the
+  // actual network hop to Render server-to-server. That keeps every
+  // request same-origin from the browser's point of view, which is what
+  // makes the session cookie first-party instead of third-party — the
+  // fix for the iOS login loop (guest login and Google OAuth both
+  // affected, on every browser on iPhone, not just Safari).
+  baseUrl: "/api",
 
-  // Our auth is an httpOnly cookie (Phase 4), and frontend/backend live
-  // on different domains in production. `credentials: "include"` tells
-  // the browser to send that cookie along with every request regardless —
-  // without this, every authenticated call would silently fail with 401
-  // even though we're logged in, because the cookie just wouldn't be sent.
-  // The matching backend half of this (CORS `credentials: true` + an exact
-  // origin allow-list) is already done in Phase 4.
+  // Our auth is an httpOnly cookie (Phase 4). Requests are same-origin
+  // now, so the browser would attach the cookie by default anyway —
+  // `credentials: "include"` is kept as an explicit, defensive statement
+  // of intent rather than relying on that default.
   credentials: "include",
 });
-
